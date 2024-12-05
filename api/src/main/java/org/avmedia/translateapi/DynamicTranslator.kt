@@ -21,15 +21,15 @@ class DynamicTranslator {
         return translate(context.getString(resId, *formatArgs))
     }
 
+    suspend fun getStringAsync(context: Context, resId: Int, vararg formatArgs: Any): String {
+        return translateAsync(context.getString(resId, *formatArgs))
+    }
+
     private fun translate(inText: String): String {
         return translator.translateBlocking(inText, language).translatedText
     }
 
     private suspend fun translateAsync(inText: String): String {
         return translator.translate(inText, language).translatedText
-    }
-
-    suspend fun getStringAsync(context: Context, resId: Int, vararg formatArgs: Any): String {
-        return translateAsync(context.getString(resId, *formatArgs))
     }
 }
