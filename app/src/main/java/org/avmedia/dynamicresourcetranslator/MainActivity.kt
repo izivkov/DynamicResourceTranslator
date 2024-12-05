@@ -56,8 +56,6 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding)
                         )
 
-                        api.setLanguage(Locale("gr"))
-
                         Text(
                             text = translatedStringResourceAsync(
                                 context = LocalContext.current,
@@ -77,7 +75,7 @@ class MainActivity : ComponentActivity() {
         Column(
             Modifier
         ) {
-            Text(text = api.getStringResource(LocalContext.current, R.string.hello, name))
+            Text(text = api.stringResource(context = LocalContext.current, resId = R.string.hello, name, locale = Locale.ITALIAN))
         }
     }
 

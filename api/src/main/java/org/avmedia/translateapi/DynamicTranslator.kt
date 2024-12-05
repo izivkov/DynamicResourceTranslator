@@ -7,29 +7,37 @@ import java.util.Locale
 
 class DynamicTranslator {
     private val translator = Translator()
-    private var language:Language = Language(Locale.getDefault().language)
+    private var locale = Locale.getDefault()
+    private var language:Language = Language(locale.language)
 
     fun setLanguage(locale: Locale) {
+        this.locale = locale
         this.language = Language.invoke(locale.language)
     }
 
-    fun getString(context: Context, resId: Int, vararg formatArgs: Any): String {
-        return translate(context.getString(resId, *formatArgs))
+    fun getString(context: Context, resId: Int, vararg formatArgs: Any, locale: Locale? = null): String {
+        val lang = locale?.language ?: this.language
+        val resolvedLanguage = Language( lang.toString() )
+        return translate(context.getString(resId, *formatArgs), resolvedLanguage)
     }
 
-    fun getStringResource(context: Context, resId: Int, vararg formatArgs: Any): String {
-        return translate(context.getString(resId, *formatArgs))
+    suspend fun getStringAsync(context: Context, resId: Int, vararg formatArgs: Any, locale: Locale? = null): String {
+        val lang = locale?.language ?: this.language
+        val resolvedLanguage = Language( lang.toString() )
+        return translateAsync(context.getString(resId, *formatArgs), resolvedLanguage)
     }
 
-    suspend fun getStringAsync(context: Context, resId: Int, vararg formatArgs: Any): String {
-        return translateAsync(context.getString(resId, *formatArgs))
+    fun stringResource(context: Context, resId: Int, vararg formatArgs: Any, locale: Locale? = null): String {
+        val lang = locale?.language ?: this.language
+        val resolvedLanguage = Language( lang.toString() )
+        return translate(context.getString(resId, *formatArgs), resolvedLanguage)
     }
 
-    private fun translate(inText: String): String {
-        return translator.translateBlocking(inText, language).translatedText
+    private fun translate(inText: String, resolvedLanguage: Language): String {
+        return translator.translateBlocking(inText, resolvedLanguage).translatedText
     }
 
-    private suspend fun translateAsync(inText: String): String {
-        return translator.translate(inText, language).translatedText
+    private suspend fun translateAsync(inText: String, resolvedLanguage: Language): String {
+        return translator.translate(inText, resolvedLanguage).translatedText
     }
 }
