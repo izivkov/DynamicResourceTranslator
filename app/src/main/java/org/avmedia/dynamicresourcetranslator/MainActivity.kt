@@ -20,33 +20,43 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.avmedia.dynamicresourcetranslator.ui.theme.DynamicResourceTranslatorTheme
 import org.avmedia.translateapi.DynamicTranslator
+import org.avmedia.translateapi.ResourceLocaleKey
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.S)
 class MainActivity : ComponentActivity() {
-    private val api = DynamicTranslator()
+    private val api =
+        DynamicTranslator()
+            .init()
+            .setEngine()
+            .setLanguage(Locale.getDefault())
+            .setOverwrites(
+            arrayOf(
+                ResourceLocaleKey(R.string.hello, Locale("es")) to "[Hola]",
+                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Zdavey"
+            )
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        println("MainActivity: onCreate")
-
-        api.setLanguage(Locale("bg"))
-        val description = api.getString(this, R.string.description)
-        println("============> $description")
-
         enableEdgeToEdge()
+
         setContent {
             DynamicResourceTranslatorTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column(Modifier.fillMaxSize().fillMaxHeight(),
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .fillMaxHeight(),
                         verticalArrangement = Arrangement.SpaceEvenly,
                         horizontalAlignment = Alignment.CenterHorizontally
                     )
@@ -59,9 +69,48 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = translatedStringResourceAsync(
                                 context = LocalContext.current,
-                                resId = R.string.async_string
+                                resId = R.string.async_string,
                             ),
-                            modifier = Modifier.fillMaxWidth().align(Alignment.CenterHorizontally).padding(start = 40.dp, end = 40.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(start = 40.dp, end = 40.dp)
+                        )
+
+                        Text(
+                            text = translatedStringResourceAsync(
+                                context = LocalContext.current,
+                                resId = R.string.async_string,
+                                //locale = Locale("es")
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(start = 40.dp, end = 40.dp)
+                        )
+
+                        Text(
+                            text = translatedStringResourceAsync(
+                                context = LocalContext.current,
+                                resId = R.string.async_string,
+                                //locale = Locale("jp")
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(start = 40.dp, end = 40.dp)
+                        )
+
+                        Text(
+                            text = translatedStringResourceAsync(
+                                context = LocalContext.current,
+                                resId = R.string.async_string,
+                                //locale = Locale("ko")
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(start = 40.dp, end = 40.dp)
                         )
                     }
                 }
@@ -75,7 +124,13 @@ class MainActivity : ComponentActivity() {
         Column(
             Modifier
         ) {
-            Text(text = api.stringResource(context = LocalContext.current, resId = R.string.hello, name, locale = Locale.ITALIAN))
+            Text(
+                text = api.stringResource(
+                    context = LocalContext.current,
+                    resId = R.string.hello,
+                    name,
+                )
+            )
         }
     }
 
@@ -85,16 +140,21 @@ class MainActivity : ComponentActivity() {
         @StringRes resId: Int,
         vararg formatArgs: Any,
         context: Context,
+        locale: Locale? = null,
     ): String {
-        // Original and translated text state
-        val originalText = api.getString(this, resId, *formatArgs)
+        val originalText = api.getString(
+            context = context,
+            resId = resId,
+            formatArgs = formatArgs,
+            locale = locale
+        )
         val translatedTextState = remember { mutableStateOf(originalText) }
 
-        // Perform translation
         LaunchedEffect(originalText) {
             try {
                 withContext(Dispatchers.IO) {
-                    translatedTextState.value = api.getStringAsync(context, resId)
+                    translatedTextState.value =
+                        api.getStringAsync(context = context, resId = resId, locale = locale)
                 }
             } catch (e: Exception) {
                 translatedTextState.value = "Translation failed: ${e.message}" // Fallback on error

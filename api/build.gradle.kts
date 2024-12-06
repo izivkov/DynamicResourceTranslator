@@ -36,4 +36,5 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.translator)
+    implementation (libs.androidx.datastore.preferences)
 }
