@@ -83,6 +83,11 @@ class DynamicTranslator {
         val curLocale = locale ?: this.locale
         val resourceKey = ResourceLocaleKey(resId, curLocale)
         val resolvedLanguage:Language
+        val language = curLocale.language.lowercase()
+
+        if (!isValidLanguageCode (language)) {
+            return "Invalid Language code [${language}] provided!" as T
+        }
 
         // check if in the overwritten table
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale)]
@@ -96,13 +101,13 @@ class DynamicTranslator {
         }
 
         try {
-            resolvedLanguage = Language(curLocale.language)
+            resolvedLanguage = Language(language)
         } catch (e: NullPointerException) {
-            println("Could not handle ${curLocale.language}: $e")
-            return context.getString(resId, *formatArgs, curLocale) as T
+            println("Could not handle ${language}: $e")
+            return context.getString(resId, *formatArgs) as T
         }
 
-        val formattedString = context.getString(resId, *formatArgs, curLocale)
+        val formattedString = getStringByLocal(context, resId, language)
 
         // if the value exists in the strings.xml for this locale, just return it without translation
         if (isResourceAvailableForLocale(context, resId, curLocale)) {
@@ -145,15 +150,24 @@ class DynamicTranslator {
         return context.createConfigurationContext(configuration).resources.getString(id)
     }
 
-    fun testLanguages() {
+    private fun testLanguages() {
         val languages = listOf(
-            "af", "am", "ar", "az", "be", "bg", "bn", "bs", "ca", "cs", "cy",
-            "da", "de", "el", "en", "es", "et", "eu", "fa", "fi", "fr", "ga",
-            "gl", "gu", "he", "hi", "hr", "hu", "hy", "id", "is", "it", "ja",
-            "ka", "kk", "km", "kn", "ko", "ky", "lo", "lt", "lv", "mk", "ml",
-            "mn", "mr", "ms", "my", "nb", "ne", "nl", "pa", "pl", "pt", "ro",
-            "ru", "si", "sk", "sl", "sq", "sr", "sv", "sw", "ta", "te", "th",
-            "tl", "tr", "uk", "ur", "uz", "vi", "zh"
+            "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az",
+            "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce",
+            "ch", "co", "cr", "cs", "cu", "cv", "cy", "da", "de", "dv", "dz", "ee",
+            "el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fj", "fo", "fr",
+            "fy", "ga", "gd", "gl", "gn", "gu", "gv", "ha", "he", "hi", "ho", "hr",
+            "ht", "hu", "hy", "hz", "ia", "id", "ie", "ig", "ii", "ik", "io", "is",
+            "it", "iu", "ja", "jv", "ka", "kg", "ki", "kj", "kk", "kl", "km", "kn",
+            "ko", "kr", "ks", "ku", "kv", "kw", "ky", "la", "lb", "lg", "li", "ln",
+            "lo", "lt", "lu", "lv", "mg", "mh", "mi", "mk", "ml", "mn", "mr", "ms",
+            "mt", "my", "na", "nb", "nd", "ne", "ng", "nl", "nn", "no", "nr", "nv",
+            "ny", "oc", "oj", "om", "or", "os", "pa", "pi", "pl", "ps", "pt", "qu",
+            "rm", "rn", "ro", "ru", "rw", "sa", "sc", "sd", "se", "sg", "si", "sk",
+            "sl", "sm", "sn", "so", "sq", "sr", "ss", "st", "su", "sv", "sw", "ta",
+            "te", "tg", "th", "ti", "tk", "tl", "tn", "to", "tr", "ts", "tt", "tw",
+            "ty", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "wa", "wo", "xh", "yi",
+            "yo", "za", "zh", "zu"
         )
 
         languages.forEach { code ->
@@ -164,5 +178,27 @@ class DynamicTranslator {
                 println("Could not handle $code: $e")
             }
         }
+    }
+
+    fun isValidLanguageCode(input: String): Boolean {
+        val languageCodes = arrayOf(
+            "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az",
+            "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce",
+            "ch", "co", "cr", "cs", "cu", "cv", "cy", "da", "de", "dv", "dz", "ee",
+            "el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fj", "fo", "fr",
+            "fy", "ga", "gd", "gl", "gn", "gu", "gv", "ha", "he", "hi", "ho", "hr",
+            "ht", "hu", "hy", "hz", "ia", "id", "ie", "ig", "ii", "ik", "io", "is",
+            "it", "iu", "ja", "jv", "ka", "kg", "ki", "kj", "kk", "kl", "km", "kn",
+            "ko", "kr", "ks", "ku", "kv", "kw", "ky", "la", "lb", "lg", "li", "ln",
+            "lo", "lt", "lu", "lv", "mg", "mh", "mi", "mk", "ml", "mn", "mr", "ms",
+            "mt", "my", "na", "nb", "nd", "ne", "ng", "nl", "nn", "no", "nr", "nv",
+            "ny", "oc", "oj", "om", "or", "os", "pa", "pi", "pl", "ps", "pt", "qu",
+            "rm", "rn", "ro", "ru", "rw", "sa", "sc", "sd", "se", "sg", "si", "sk",
+            "sl", "sm", "sn", "so", "sq", "sr", "ss", "st", "su", "sv", "sw", "ta",
+            "te", "tg", "th", "ti", "tk", "tl", "tn", "to", "tr", "ts", "tt", "tw",
+            "ty", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "wa", "wo", "xh", "yi",
+            "yo", "za", "zh", "zu"
+        )
+        return input in languageCodes
     }
 }

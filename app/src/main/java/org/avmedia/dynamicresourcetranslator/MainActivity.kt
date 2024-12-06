@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
                             text = translatedStringResourceAsync(
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
-                                //locale = Locale("es")
+                                locale = Locale("ja")
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                             text = translatedStringResourceAsync(
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
-                                //locale = Locale("jp")
+                                locale = Locale("bg")
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
                             text = translatedStringResourceAsync(
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
-                                //locale = Locale("ko")
+                                locale = Locale("sa")
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
