@@ -2,36 +2,19 @@ package org.avmedia.translateapi.engine
 
 import me.bush.translator.Language
 import me.bush.translator.Translator
+import org.avmedia.translateapi.NetworkConnectionChecker
 import java.util.Locale
 
 class BushTranslationEngine (
 ) : ITranslationEngine {
+
     private val translator: Translator = Translator()
 
-    override fun useLanguageSpecificResourceFiles(): Boolean {
-        return true
+    override fun isInline(): Boolean {
+        return false
     }
 
-    override suspend fun translate(
-        text: String,
-        target: Locale,
-    ): String {
-        return translator.translate(
-            text,
-            Language(target.language),
-            Language.AUTO,
-        ).translatedText
-    }
-
-    override suspend fun translateCatching(text: String, target: Locale): String? {
-        return translator.translateCatching(
-            text,
-            Language(target.language),
-            Language.AUTO,
-        ).getOrNull() as String?
-    }
-
-    override fun translateBlocking(
+    override fun translate(
         text: String,
         target: Locale,
     ): String {
@@ -42,14 +25,14 @@ class BushTranslationEngine (
         ).translatedText
     }
 
-    override fun translateBlockingCatching(
+    override suspend fun translateAsync(
         text: String,
         target: Locale,
-    ): String? {
-        return translator.translateBlockingCatching(
+    ): String {
+        return translator.translate(
             text,
             Language(target.language),
             Language.AUTO,
-        ).getOrNull() as String?
+        ).translatedText
     }
 }

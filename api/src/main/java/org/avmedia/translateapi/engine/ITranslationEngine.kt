@@ -1,27 +1,20 @@
 package org.avmedia.translateapi.engine
 
+import me.bush.translator.Language
 import java.util.Locale
 
 interface ITranslationEngine {
-    fun useLanguageSpecificResourceFiles (): Boolean
 
-    suspend fun translate(
+    // True if all conversion is dome inLike, without accessing any language specific string.xml files
+    fun isInline (): Boolean
+
+    fun translate(
         text: String,
         target: Locale,
     ): String
 
-    suspend fun translateCatching(
-        text: String,
-        target: Locale,
-    ): String?
-
-    fun translateBlocking(
+    suspend fun translateAsync(
         text: String,
         target: Locale,
     ): String
-
-    fun translateBlockingCatching(
-        text: String,
-        target: Locale,
-    ): String?
 }

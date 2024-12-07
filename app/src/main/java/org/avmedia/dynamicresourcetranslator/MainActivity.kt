@@ -28,10 +28,12 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.S)
 class MainActivity : ComponentActivity() {
     private val api =
-        DynamicTranslator()
-            .init()
-            // .setEngine(UppercaseTranslator())
-            .setLanguage(Locale.getDefault())
+        DynamicTranslator(
+            // can pass your own translation engine here like that:
+            // UppercaseTranslationEngine()
+        )
+            .init () // call optional
+            .setLanguage(Locale.getDefault()) // optional call to set any language
             .setOverwrites(
             arrayOf(
                 ResourceLocaleKey(R.string.hello, Locale("es")) to "[Hola]",

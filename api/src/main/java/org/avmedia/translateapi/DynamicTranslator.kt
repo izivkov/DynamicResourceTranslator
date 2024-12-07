@@ -9,9 +9,9 @@ import java.util.Locale
 class DynamicTranslator(
     private var translator: ITranslationEngine = BushTranslationEngine()
 ) {
-
     private var locale = Locale.getDefault()
     private val translationOverwrites = TranslationOverwrites()
+    private val networkConnectionChecker = NetworkConnectionChecker ()
 
     fun init(): DynamicTranslator {
         // Do initialization here...
@@ -20,11 +20,6 @@ class DynamicTranslator(
 
     fun setLanguage(locale: Locale): DynamicTranslator {
         this.locale = locale
-        return this
-    }
-
-    fun setEngine(translationEngine: ITranslationEngine): DynamicTranslator {
-        translator = translationEngine
         return this
     }
 
@@ -37,14 +32,23 @@ class DynamicTranslator(
         context: Context,
         resId: Int,
         vararg formatArgs: Any,
-        locale: Locale? = null
+        locale: Locale? = null,
     ): String {
-        return computeValue(
-            context = context,
-            resId = resId,
-            formatArgs = formatArgs,
-            locale = locale
-        ) { text, language -> translate(text, language) }
+        return if (translator.isInline()) {
+            computeValueInline(
+                context = context,
+                resId = resId,
+                formatArgs = formatArgs,
+                locale = locale
+            ) { text: String, language: Locale -> translate(text, language) }
+        } else {
+            computeValue (
+                context = context,
+                resId = resId,
+                formatArgs = formatArgs,
+                locale = locale
+            ) { text: String, language: Locale -> translate(text, language) }
+        }
     }
 
     fun stringResource(
@@ -53,12 +57,35 @@ class DynamicTranslator(
         vararg formatArgs: Any,
         locale: Locale? = null
     ): String {
-        return computeValue(
-            context = context,
-            resId = resId,
-            formatArgs = formatArgs,
-            locale = locale
-        ) { text, language -> translate(text, language) }
+        return if (translator.isInline()) {
+            computeValueInline(
+                context = context,
+                resId = resId,
+                formatArgs = formatArgs,
+                locale = locale
+            ) { text: String, language: Locale -> translate(text, language) }
+        } else {
+            computeValue(
+                context = context,
+                resId = resId,
+                formatArgs = formatArgs,
+                locale = locale
+            ) { text: String, language: Locale -> translate(text, language) }
+        }
+    }
+
+    // This function is used by translators which do all translation inline,
+    // i.e. do bot look at any language-specific resource files.
+    private inline fun <T> computeValueInline(
+        context: Context,
+        resId: Int,
+        formatArgs: Array<out Any>,
+        locale: Locale?,
+        translator: (String, Locale) -> T
+    ): T {
+        val curLocale = locale ?: this.locale
+        val origString = readStringFromDefaultFile(context, resId, formatArgs)
+        return translator(origString, curLocale)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -72,11 +99,6 @@ class DynamicTranslator(
         val curLocale = locale ?: this.locale
         val resourceKey = ResourceLocaleKey(resId, curLocale)
         val language = curLocale.language.lowercase()
-
-        if (!this.translator.useLanguageSpecificResourceFiles()) {
-            val origString =  getStringByLocal(context, resId, formatArgs, Locale("kv").language)
-            return  translator(origString, curLocale)
-        }
 
         if (!isValidLanguageCode(language)) {
             return "Invalid Language code [${language}] provided!" as T
@@ -96,7 +118,7 @@ class DynamicTranslator(
         val formattedString = getStringByLocal(context, resId, formatArgs, language)
 
         // if the value exists in the strings.xml for this locale, just return it without translation
-        if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale)) {
+        if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale) || !networkConnectionChecker.isConnected(context)) {
             return formattedString as T
         }
 
@@ -106,7 +128,7 @@ class DynamicTranslator(
     }
 
     private fun translate(inText: String, locale: Locale): String {
-        return translator.translateBlocking(inText, locale)
+        return translator.translate(inText, locale)
     }
 
     private fun isResourceAvailableForLocale(
@@ -116,15 +138,29 @@ class DynamicTranslator(
         locale: Locale,
     ): Boolean {
         /*
-        This is a hack, but it allows us to determine if the string is read from the language-specific string.xml,
-        or from default string.xml. We are using a uncommon Locale, "kv" which should nor have its own string.xml, and will use the
-        default. So, we can compare with the target locale string, and if identical, this means the target is also using default, and
-        there is no string.xml for it. We therefore must translate the string, instead of taking it from the default resource.
-         */
+        We compare a string from the default string.xml with the target locale string,
+        and if identical, this means the target is also using default, and
+        there is no string.xml for it. This tess us if we should translate the string.
+        */
+
         val localStr = getStringByLocal(context, resId, formatArgs, locale.language)
-        val defaultStr = getStringByLocal(context, resId, formatArgs, Locale("kv").language)
+        val defaultStr = readStringFromDefaultFile(context, resId, formatArgs)
 
         return localStr != defaultStr
+    }
+
+    private fun readStringFromDefaultFile(
+        context: Context,
+        resId: Int,
+        formatArgs: Array<out Any>,
+    ): String {
+        /*
+        This is a hack, but it allows us to determine if the string is read from the language-specific string.xml,
+        or from default string.xml. We are using a uncommon Locale, "kv" which should nor have its own string.xml, and will use the
+        default.
+         */
+
+        return getStringByLocal(context, resId, formatArgs, Locale("kv").language)
     }
 
     private fun getStringByLocal(
