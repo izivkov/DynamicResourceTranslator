@@ -24,7 +24,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.avmedia.dynamicresourcetranslator.ui.theme.DynamicResourceTranslatorTheme
 import org.avmedia.translateapi.DynamicTranslator
@@ -41,9 +43,17 @@ class MainActivity : ComponentActivity() {
             .setOverwrites(
             arrayOf(
                 ResourceLocaleKey(R.string.hello, Locale("es")) to "[Hola]",
-                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Zdavey"
+                ResourceLocaleKey(R.string.async_string, Locale("bg")) to "Zdravei %1\$s  %2\$s  %3\$s"
             )
         )
+
+    private fun Context.getString (
+        resId: Int,
+        vararg formatArgs: Any,
+        locale: Locale? = null
+    ): String {
+        return api._getString(this, resId, formatArgs, locale = locale)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,13 +73,13 @@ class MainActivity : ComponentActivity() {
                     {
                         Greeting(
                             name = "Android",
-                            modifier = Modifier.padding(innerPadding)
                         )
 
                         Text(
-                            text = translatedStringResourceAsync(
+                            text = api.stringResource(
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
+                                "Xone", "Xtwo", "Xthree", "xfour"
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -78,9 +88,10 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Text(
-                            text = translatedStringResourceAsync(
+                            text = api.stringResource(
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
+                                formatArgs = arrayOf("one", "two", "three"),
                                 locale = Locale("ja")
                             ),
                             modifier = Modifier
@@ -90,9 +101,10 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Text(
-                            text = translatedStringResourceAsync(
+                            text = api.stringResource(
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
+                                formatArgs = arrayOf("one", "two", "three"),
                                 locale = Locale("bg")
                             ),
                             modifier = Modifier
@@ -102,9 +114,10 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Text(
-                            text = translatedStringResourceAsync(
+                            text = api.stringResource (
                                 context = LocalContext.current,
                                 resId = R.string.async_string,
+                                formatArgs = arrayOf("one", "two", "three"),
                                 locale = Locale("sa")
                             ),
                             modifier = Modifier
@@ -120,7 +133,7 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     @Composable
-    fun Greeting(name: String, modifier: Modifier = Modifier) {
+    fun Greeting(name: String) {
         Column(
             Modifier
         ) {
@@ -132,35 +145,5 @@ class MainActivity : ComponentActivity() {
                 )
             )
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.S)
-    @Composable
-    fun translatedStringResourceAsync(
-        @StringRes resId: Int,
-        vararg formatArgs: Any,
-        context: Context,
-        locale: Locale? = null,
-    ): String {
-        val originalText = api.getString(
-            context = context,
-            resId = resId,
-            formatArgs = formatArgs,
-            locale = locale
-        )
-        val translatedTextState = remember { mutableStateOf(originalText) }
-
-        LaunchedEffect(originalText) {
-            try {
-                withContext(Dispatchers.IO) {
-                    translatedTextState.value =
-                        api.getStringAsync(context = context, resId = resId, locale = locale)
-                }
-            } catch (e: Exception) {
-                translatedTextState.value = "Translation failed: ${e.message}" // Fallback on error
-            }
-        }
-
-        return translatedTextState.value
     }
 }

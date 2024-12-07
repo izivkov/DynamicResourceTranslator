@@ -12,7 +12,7 @@ class DynamicTranslator {
     private val translationOverwrites = TranslationOverwrites()
 
     fun init(): DynamicTranslator {
-        // testLanguages()
+        // Do initialization here...
         return this
     }
 
@@ -28,9 +28,10 @@ class DynamicTranslator {
     fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator {
         translationOverwrites.addAll(entries)
         return this
+
     }
 
-    fun getString(
+    fun _getString(
         context: Context,
         resId: Int,
         vararg formatArgs: Any,
@@ -42,20 +43,6 @@ class DynamicTranslator {
             formatArgs = formatArgs,
             locale = locale
         ) { text, language -> translate(text, language) }
-    }
-
-    suspend fun getStringAsync(
-        context: Context,
-        resId: Int,
-        vararg formatArgs: Any,
-        locale: Locale? = null
-    ): String {
-        return computeValue(
-            context = context,
-            resId = resId,
-            formatArgs = formatArgs,
-            locale = locale
-        ) { text, language -> translateAsync(text, language) }
     }
 
     fun stringResource(
@@ -89,10 +76,10 @@ class DynamicTranslator {
             return "Invalid Language code [${language}] provided!" as T
         }
 
-        // check if in the overwritten table
+        // check if string in the overwritten table
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale)]
         if (overWrittenValue != null) {
-            return overWrittenValue as T
+            return String.format(overWrittenValue, *formatArgs) as T
         }
 
         val storedValue = LocalDataStorage.getResource(context, resourceKey)
@@ -104,13 +91,14 @@ class DynamicTranslator {
             resolvedLanguage = Language(language)
         } catch (e: NullPointerException) {
             println("Could not handle ${language}: $e")
-            return context.getString(resId, *formatArgs) as T
+            return _getString(context, resId, *formatArgs) as T
         }
 
-        val formattedString = getStringByLocal(context, resId, language)
+        val formattedString = getStringByLocal(context, resId, formatArgs, language)
+        // val formattedString = context.getString(resId, *formatArgs)
 
         // if the value exists in the strings.xml for this locale, just return it without translation
-        if (isResourceAvailableForLocale(context, resId, curLocale)) {
+        if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale)) {
             return formattedString as T
         }
 
@@ -123,13 +111,10 @@ class DynamicTranslator {
         return translator.translateBlocking(inText, resolvedLanguage).translatedText
     }
 
-    private suspend fun translateAsync(inText: String, resolvedLanguage: Language): String {
-        return translator.translate(inText, resolvedLanguage).translatedText
-    }
-
     private fun isResourceAvailableForLocale(
         context: Context,
         resId: Int,
+        formatArgs: Array<out Any>,
         locale: Locale,
     ): Boolean {
         /*
@@ -138,49 +123,19 @@ class DynamicTranslator {
         default. So, we can compare with the target locale string, and if identical, this means the target is also using default, and
         there is no string.xml for it. We therefore must translate the string, instead of taking it from the default resource.
          */
-        val localStr = getStringByLocal(context, resId, locale.language)
-        val defaultStr = getStringByLocal(context, resId, Locale("kv").language)
+        val localStr = getStringByLocal(context, resId, formatArgs, locale.language)
+        val defaultStr = getStringByLocal(context, resId, formatArgs, Locale("kv").language)
 
         return localStr != defaultStr
     }
 
-    private fun getStringByLocal(context: Context, id: Int, locale: String?): String {
+    private fun getStringByLocal(context: Context, id: Int, formatArgs: Array<out Any>, locale: String?): String {
         val configuration = Configuration(context.resources.configuration)
         configuration.setLocale(locale?.let { Locale(it) })
-        return context.createConfigurationContext(configuration).resources.getString(id)
+        return context.createConfigurationContext(configuration).resources.getString(id, *formatArgs)
     }
 
-    private fun testLanguages() {
-        val languages = listOf(
-            "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az",
-            "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce",
-            "ch", "co", "cr", "cs", "cu", "cv", "cy", "da", "de", "dv", "dz", "ee",
-            "el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fj", "fo", "fr",
-            "fy", "ga", "gd", "gl", "gn", "gu", "gv", "ha", "he", "hi", "ho", "hr",
-            "ht", "hu", "hy", "hz", "ia", "id", "ie", "ig", "ii", "ik", "io", "is",
-            "it", "iu", "ja", "jv", "ka", "kg", "ki", "kj", "kk", "kl", "km", "kn",
-            "ko", "kr", "ks", "ku", "kv", "kw", "ky", "la", "lb", "lg", "li", "ln",
-            "lo", "lt", "lu", "lv", "mg", "mh", "mi", "mk", "ml", "mn", "mr", "ms",
-            "mt", "my", "na", "nb", "nd", "ne", "ng", "nl", "nn", "no", "nr", "nv",
-            "ny", "oc", "oj", "om", "or", "os", "pa", "pi", "pl", "ps", "pt", "qu",
-            "rm", "rn", "ro", "ru", "rw", "sa", "sc", "sd", "se", "sg", "si", "sk",
-            "sl", "sm", "sn", "so", "sq", "sr", "ss", "st", "su", "sv", "sw", "ta",
-            "te", "tg", "th", "ti", "tk", "tl", "tn", "to", "tr", "ts", "tt", "tw",
-            "ty", "ug", "uk", "ur", "uz", "ve", "vi", "vo", "wa", "wo", "xh", "yi",
-            "yo", "za", "zh", "zu"
-        )
-
-        languages.forEach { code ->
-            println("Language(\"$code\")")
-            try {
-                Language(code)
-            } catch (e: NullPointerException) {
-                println("Could not handle $code: $e")
-            }
-        }
-    }
-
-    fun isValidLanguageCode(input: String): Boolean {
+    private fun isValidLanguageCode(input: String): Boolean {
         val languageCodes = arrayOf(
             "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az",
             "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce",
