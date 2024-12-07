@@ -2,12 +2,14 @@ package org.avmedia.translateapi
 
 import android.content.Context
 import android.content.res.Configuration
-import me.bush.translator.Language
-import me.bush.translator.Translator
+import org.avmedia.translateapi.engine.BushTranslationEngine
+import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
 
-class DynamicTranslator {
-    private val translator = Translator()
+class DynamicTranslator(
+    private var translator: ITranslationEngine = BushTranslationEngine()
+) {
+
     private var locale = Locale.getDefault()
     private val translationOverwrites = TranslationOverwrites()
 
@@ -21,14 +23,14 @@ class DynamicTranslator {
         return this
     }
 
-    fun setEngine(): DynamicTranslator {
+    fun setEngine(translationEngine: ITranslationEngine): DynamicTranslator {
+        translator = translationEngine
         return this
     }
 
     fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator {
         translationOverwrites.addAll(entries)
         return this
-
     }
 
     fun _getString(
@@ -65,14 +67,18 @@ class DynamicTranslator {
         resId: Int,
         formatArgs: Array<out Any>,
         locale: Locale?,
-        translator: (String, Language) -> T
+        translator: (String, Locale) -> T
     ): T {
         val curLocale = locale ?: this.locale
         val resourceKey = ResourceLocaleKey(resId, curLocale)
-        val resolvedLanguage:Language
         val language = curLocale.language.lowercase()
 
-        if (!isValidLanguageCode (language)) {
+        if (!this.translator.useLanguageSpecificResourceFiles()) {
+            val origString =  getStringByLocal(context, resId, formatArgs, Locale("kv").language)
+            return  translator(origString, curLocale)
+        }
+
+        if (!isValidLanguageCode(language)) {
             return "Invalid Language code [${language}] provided!" as T
         }
 
@@ -87,28 +93,20 @@ class DynamicTranslator {
             return storedValue as T
         }
 
-        try {
-            resolvedLanguage = Language(language)
-        } catch (e: NullPointerException) {
-            println("Could not handle ${language}: $e")
-            return _getString(context, resId, *formatArgs) as T
-        }
-
         val formattedString = getStringByLocal(context, resId, formatArgs, language)
-        // val formattedString = context.getString(resId, *formatArgs)
 
         // if the value exists in the strings.xml for this locale, just return it without translation
         if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale)) {
             return formattedString as T
         }
 
-        val translatedValue = translator(formattedString, resolvedLanguage)
+        val translatedValue = translator(formattedString, curLocale)
         // LocalDataStorage.putResource(context, resourceKey, translatedValue.toString())
         return translatedValue
     }
 
-    private fun translate(inText: String, resolvedLanguage: Language): String {
-        return translator.translateBlocking(inText, resolvedLanguage).translatedText
+    private fun translate(inText: String, locale: Locale): String {
+        return translator.translateBlocking(inText, locale)
     }
 
     private fun isResourceAvailableForLocale(
@@ -129,10 +127,18 @@ class DynamicTranslator {
         return localStr != defaultStr
     }
 
-    private fun getStringByLocal(context: Context, id: Int, formatArgs: Array<out Any>, locale: String?): String {
+    private fun getStringByLocal(
+        context: Context,
+        id: Int,
+        formatArgs: Array<out Any>,
+        locale: String?
+    ): String {
         val configuration = Configuration(context.resources.configuration)
         configuration.setLocale(locale?.let { Locale(it) })
-        return context.createConfigurationContext(configuration).resources.getString(id, *formatArgs)
+        return context.createConfigurationContext(configuration).resources.getString(
+            id,
+            *formatArgs
+        )
     }
 
     private fun isValidLanguageCode(input: String): Boolean {
