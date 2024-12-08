@@ -6,33 +6,33 @@ import org.avmedia.translateapi.engine.BushTranslationEngine
 import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
 
-class DynamicTranslator(
+class DynamicTranslator (
     private var translator: ITranslationEngine = BushTranslationEngine()
-) {
-    private var locale = Locale.getDefault()
-    private val translationOverwrites = TranslationOverwrites()
-    private val networkConnectionChecker = NetworkConnectionChecker ()
+) : IDynamicTranslator {
+    override var locale = Locale.getDefault()
+    override val translationOverwrites = TranslationOverwrites()
+    override val networkConnectionChecker = NetworkConnectionChecker ()
 
-    fun init(): DynamicTranslator {
+    override fun init(): DynamicTranslator {
         // Do initialization here...
         return this
     }
 
-    fun setLanguage(locale: Locale): DynamicTranslator {
+    override fun setLanguage(locale: Locale): DynamicTranslator {
         this.locale = locale
         return this
     }
 
-    fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator {
+    override fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator {
         translationOverwrites.addAll(entries)
         return this
     }
 
-    fun _getString(
+    override fun getString(
         context: Context,
         resId: Int,
         vararg formatArgs: Any,
-        locale: Locale? = null,
+        locale: Locale?,
     ): String {
         return if (translator.isInline()) {
             computeValueInline(
@@ -51,11 +51,11 @@ class DynamicTranslator(
         }
     }
 
-    fun stringResource(
+    override fun stringResource(
         context: Context,
         resId: Int,
         vararg formatArgs: Any,
-        locale: Locale? = null
+        locale: Locale?
     ): String {
         return if (translator.isInline()) {
             computeValueInline(
@@ -71,6 +71,29 @@ class DynamicTranslator(
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translate(text, language) }
+        }
+    }
+
+    override suspend fun stringResourceAsync(
+        context: Context,
+        resId: Int,
+        vararg formatArgs: Any,
+        locale: Locale?
+    ): String {
+        return if (translator.isInline()) {
+            computeValueInline(
+                context = context,
+                resId = resId,
+                formatArgs = formatArgs,
+                locale = locale
+            ) { text: String, language: Locale -> translateAsync(text, language) }
+        } else {
+            computeValue(
+                context = context,
+                resId = resId,
+                formatArgs = formatArgs,
+                locale = locale
+            ) { text: String, language: Locale -> translateAsync(text, language) }
         }
     }
 
@@ -97,7 +120,7 @@ class DynamicTranslator(
         translator: (String, Locale) -> T
     ): T {
         val curLocale = locale ?: this.locale
-        val resourceKey = ResourceLocaleKey(resId, curLocale)
+        val resourceKey = ResourceLocaleKey(resId, curLocale.language)
         val language = curLocale.language.lowercase()
 
         if (!isValidLanguageCode(language)) {
@@ -105,7 +128,7 @@ class DynamicTranslator(
         }
 
         // check if string in the overwritten table
-        val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale)]
+        val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale.language)]
         if (overWrittenValue != null) {
             return String.format(overWrittenValue, *formatArgs) as T
         }
@@ -123,17 +146,21 @@ class DynamicTranslator(
         }
 
         val translatedValue = translator(formattedString, curLocale)
-        // LocalDataStorage.putResource(context, resourceKey, translatedValue.toString())
+        LocalDataStorage.putResource(context, resourceKey, translatedValue.toString())
         return translatedValue
     }
 
-    private fun translate(inText: String, locale: Locale): String {
+    override fun translate(inText: String, locale: Locale): String {
         return translator.translate(inText, locale)
     }
 
-    private fun isResourceAvailableForLocale(
+    override suspend fun translateAsync(inText: String, locale: Locale): String {
+        return translator.translateAsync(inText, locale)
+    }
+
+    override fun isResourceAvailableForLocale(
         context: Context,
-        resId: Int,
+        id: Int,
         formatArgs: Array<out Any>,
         locale: Locale,
     ): Boolean {
@@ -143,13 +170,13 @@ class DynamicTranslator(
         there is no string.xml for it. This tess us if we should translate the string.
         */
 
-        val localStr = getStringByLocal(context, resId, formatArgs, locale.language)
-        val defaultStr = readStringFromDefaultFile(context, resId, formatArgs)
+        val localStr = getStringByLocal(context, id, formatArgs, locale.language)
+        val defaultStr = readStringFromDefaultFile(context, id, formatArgs)
 
         return localStr != defaultStr
     }
 
-    private fun readStringFromDefaultFile(
+    override fun readStringFromDefaultFile(
         context: Context,
         resId: Int,
         formatArgs: Array<out Any>,
@@ -163,7 +190,7 @@ class DynamicTranslator(
         return getStringByLocal(context, resId, formatArgs, Locale("kv").language)
     }
 
-    private fun getStringByLocal(
+    override fun getStringByLocal(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
@@ -177,7 +204,7 @@ class DynamicTranslator(
         )
     }
 
-    private fun isValidLanguageCode(input: String): Boolean {
+    override fun isValidLanguageCode(input: String): Boolean {
         val languageCodes = arrayOf(
             "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az",
             "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce",

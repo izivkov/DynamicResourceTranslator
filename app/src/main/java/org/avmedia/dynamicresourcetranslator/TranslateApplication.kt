@@ -11,7 +11,7 @@ class TranslateApplication : Application() {
 
     fun Context.stringResource(resId: Int, vararg formatArgs: Any): String {
         api.setLanguage(Locale("bg"))
-        return api._getString(applicationContext, resId, *formatArgs)
+        return api.getString(applicationContext, resId, *formatArgs)
     }
 
     override fun onCreate() {
