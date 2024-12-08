@@ -98,7 +98,7 @@ class DynamicTranslator (
     }
 
     // This function is used by translators which do all translation inline,
-    // i.e. do bot look at any language-specific resource files.
+    // i.e. do not look at any language-specific resource files and do not use external translators.
     private inline fun <T> computeValueInline(
         context: Context,
         resId: Int,
@@ -123,9 +123,7 @@ class DynamicTranslator (
         val resourceKey = ResourceLocaleKey(resId, curLocale.language)
         val language = curLocale.language.lowercase()
 
-        if (!isValidLanguageCode(language)) {
-            return "Invalid Language code [${language}] provided!" as T
-        }
+        require(isValidLanguageCode(language)) { return "Invalid Language code [${language}] provided!" as T }
 
         // check if string in the overwritten table
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale.language)]
@@ -133,6 +131,7 @@ class DynamicTranslator (
             return String.format(overWrittenValue, *formatArgs) as T
         }
 
+        // try to get from local storage.
         val storedValue = LocalDataStorage.getResource(context, resourceKey)
         if (storedValue != null) {
             return storedValue as T
@@ -141,11 +140,17 @@ class DynamicTranslator (
         val formattedString = getStringByLocal(context, resId, formatArgs, language)
 
         // if the value exists in the strings.xml for this locale, just return it without translation
-        if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale) || !networkConnectionChecker.isConnected(context)) {
+        if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale)) {
+            return formattedString as T
+        }
+
+        // If we do not have network connection, do not try to translate, return the original string.
+        if (!networkConnectionChecker.isConnected(context)) {
             return formattedString as T
         }
 
         val translatedValue = translator(formattedString, curLocale)
+
         LocalDataStorage.putResource(context, resourceKey, translatedValue.toString())
         return translatedValue
     }

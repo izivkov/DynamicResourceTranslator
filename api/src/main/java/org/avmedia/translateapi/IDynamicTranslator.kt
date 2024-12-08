@@ -1,6 +1,7 @@
 package org.avmedia.translateapi
 
 import android.content.Context
+import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
 
 interface IDynamicTranslator {

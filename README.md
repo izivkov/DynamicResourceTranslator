@@ -5,8 +5,10 @@ DynamicResourceApi is an Android library designed to simplify internationalizati
 ## Features
 
 - Translates default string resources dynamically at runtime.
-- Respects existing language-specific resources if available.
-- Pluggable translation engine architecture.
+- Eliminates the need to create a language-specific strings.xml files, but will respect the ones that are present.
+- Can fine-tune translations if automatic translation for some string not acceptable.
+- Allows for multiple language translations on the same page.
+- Pluggable translation engine architecture. Provide your own translation engine, or even transform your string in any way you see fit.
 - Lightweight and easy to integrate.
 
 ## Directory Structure Comparison
@@ -33,7 +35,7 @@ res/
 ## How to Use the API
 
 ### Step 1: Replace `getString` Calls
-Replace traditional `getString` calls with the new API's `getDynamicString` method. For example:
+Replace traditional `context.getString` calls with the new API's `api.getString` method. For example:
 
 **Before:**
 ```kotlin
@@ -42,9 +44,8 @@ val text = context.getString(R.string.hello_world)
 
 **After:**
 ```kotlin
-val text = DynamicStringApi.getDynamicString(context, R.string.hello_world)
+val text = api.getString(context, R.string.hello_world)
 ```
-
 ### Step 2: Replace `stringResource` Calls in Compose
 Replace traditional `stringResource` calls with `dynamicStringResource`.
 
@@ -55,18 +56,41 @@ val text = stringResource(id = R.string.hello_world)
 
 **After:**
 ```kotlin
-val text = dynamicStringResource(id = R.string.hello_world)
+val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
+```
+
+The ```api``` variable can be created as follows:
+
+Initialise the ```DynamicResourceApi``` once:
+```kotlin
+DynamicResourceApi.init()
+```
+
+Then obtain the api anywhere in your program like this:
+
+```kotlin
+private val api = DynamicResourceApi.getApi()
 ```
 
 ## Adding a Custom Translation Engine
-
-You can provide your own translation engine to customize the way strings are translated. For example, the `UppercaseTranslationEngine` translates all strings to uppercase.
+By default, this library uses ts built-in `BushTranslationEngine` for translation, which is based in [this](https://github.com/therealbush/translator) library. 
+You can provide your own translation engine to customize the way strings are translated. As an example, here is a simple `UppercaseTranslationEngine` which simply 
+translates all strings to uppercase.
 
 ### Example: UppercaseTranslationEngine
 ```kotlin
-class UppercaseTranslationEngine : ITranslationEngine {
-    override fun translate(text: String, targetLanguage: Locale): String {
-        return text.uppercase(targetLanguage)
+class UppercaseTranslationEngine: ITranslationEngine {
+
+    override fun isInline(): Boolean {
+        return true
+    }
+
+    override fun translate(text: String, target: Locale): String {
+        return text.uppercase()
+    }
+
+    override suspend fun translateAsync(text: String, target: Locale): String {
+        return text.uppercase() 
     }
 }
 ```
@@ -74,9 +98,10 @@ class UppercaseTranslationEngine : ITranslationEngine {
 ### Plugging in a Custom Engine
 To use your custom translation engine, register it using the API's configuration.
 
+We plug in into the api like this when we first initialise it:
+
 ```kotlin
-val engine = UppercaseTranslationEngine()
-DynamicStringApi.setTranslationEngine(engine)
+DynamicResourceApi.init(engine = UppercaseTranslationEngine())
 ```
 
 After registering, all string translations will use the `UppercaseTranslationEngine`.
