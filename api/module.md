@@ -1,5 +1,3 @@
-# Module casio-g-shock-smart-sync-app
-
 # Package org.avmedia.translateapi
 Dynamic Resource Translation API
 
