@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.avmedia.dynamicresourcetranslator.ui.theme.DynamicResourceTranslatorTheme
 import org.avmedia.translateapi.DynamicResourceApi
+import org.avmedia.translateapi.ResourceLocaleKey
 import org.avmedia.translateapi.engine.BushTranslationEngine
 import java.util.Locale
 
@@ -31,7 +32,10 @@ class MainActivity : ComponentActivity() {
         .init(
             engine = BushTranslationEngine(),
             language = Locale.getDefault(),
-            overWrites = arrayOf()
+            overWrites = arrayOf(
+                ResourceLocaleKey(R.string.hello, Locale("es").language) to "[Hola]",
+                ResourceLocaleKey(R.string.hello, Locale("bg").language) to "Здравей %1$s"
+            )
         )
         .getApi()
 
