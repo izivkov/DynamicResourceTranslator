@@ -127,15 +127,20 @@ Override translations in one of the following ways:
    ```kotlin
    DynamicResourceApi.init(
        overWrites = arrayOf(
-           ResourceLocaleKey(R.string.hello, Locale("es").language) to "Hola",
-           ResourceLocaleKey(R.string.hello, Locale("bg").language) to "Здравей %1$s"
+           ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+           ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1$s",
+           ResourceLocaleKey(R.string.auto_configure_settings, Locale("pt")) to "Auto",
+           /* ... */
        )
    )
    ```
 
+## Credits
+- This project is using the great [translator](https://github.com/therealbush/translator) Kotlin library.
+- Google Translate
+
+## Note
+This is using an **unofficial** Google API. This may cease to work at any point in time, and you should be prepared to use a different translation engine if needed.
+
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
-
----
-
-This version improves grammar, consistency, and readability while retaining all original details. Let me know if you need additional adjustments!
