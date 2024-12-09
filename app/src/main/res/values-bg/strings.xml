@@ -2,5 +2,5 @@
     <string name="app_name">DynamicResourceTranslator</string>
     <string name="hello">Здравей %1$s</string>
     <string name="description">From File: Тази библиотека ви позволява динамично да превеждате ресурси по време на изпълнение.</string>
-    <string name="async_string">From File: Този низ се зарежда асинхронно. %1$s %2$s %3$s</string>
+<!--    <string name="async_string">From File: Този низ се зарежда асинхронно. %1$s %2$s %3$s</string>-->
 </resources>

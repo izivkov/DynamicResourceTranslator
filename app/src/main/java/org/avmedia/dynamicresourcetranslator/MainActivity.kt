@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                             text = api.stringResource(
                                 context = LocalContext.current,
                                 id = R.string.async_string,
-                                "Xone", "Xtwo", "Xthree", "xfour"
+                                "one", "two", "three", "four"
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
