@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = api.stringResource(
                                 context = LocalContext.current,
-                                resId = R.string.async_string,
+                                id = R.string.async_string,
                                 "Xone", "Xtwo", "Xthree", "xfour"
                             ),
                             modifier = Modifier
@@ -75,7 +75,7 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = api.stringResource(
                                 context = LocalContext.current,
-                                resId = R.string.async_string,
+                                id = R.string.async_string,
                                 formatArgs = arrayOf("one", "two", "three"),
                                 locale = Locale("ja")
                             ),
@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = api.stringResource(
                                 context = LocalContext.current,
-                                resId = R.string.async_string,
+                                id = R.string.async_string,
                                 formatArgs = arrayOf("one", "two", "three"),
                                 locale = Locale("bg")
                             ),
@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = api.stringResource(
                                 context = LocalContext.current,
-                                resId = R.string.async_string,
+                                id = R.string.async_string,
                                 formatArgs = arrayOf("one", "two", "three"),
                                 locale = Locale("sa")
                             ),
@@ -125,7 +125,7 @@ class MainActivity : ComponentActivity() {
             Text(
                 text = api.stringResource(
                     LocalContext.current,
-                    resId = R.string.hello,
+                    id = R.string.hello,
                     name,
                     locale = Locale("bg")
                 )

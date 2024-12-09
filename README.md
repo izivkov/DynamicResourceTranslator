@@ -1,7 +1,3 @@
-Here is the polished version of your README file:
-
----
-
 # DynamicResourceApi
 
 DynamicResourceApi is an Android library that simplifies internationalization for your app. You only need to create 
@@ -56,10 +52,6 @@ Ensure you add the following permissions to your manifest:
 
 ## Usage
 
-Here’s a more compact version of your markup, combining the "before" and "after" code snippets into a single block:
-
----
-
 You can access the API as follows:
 
 1. **Initialize** `DynamicResourceApi` once, typically in `MainActivity` or your application class:
@@ -89,24 +81,30 @@ You can access the API as follows:
    val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
    ```
 
-## Adding a Custom Translation Engine
-By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator) library. 
-You can provide your own translation engine for customized translations.
-For the purposes of illustration, here’s a trivial engine that converts all strings to uppercase.
+## Function Documentation
 
-```kotlin
-class UppercaseTranslationEngine : ITranslationEngine {
-   override fun isInline(): Boolean = true
-   override fun translate(text: String, target: Locale): String = text.uppercase()
-   override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
-}
-```
-To use your custom engine, register it during initialization:
+### Function: `getString`
 
+Replace your `context.getString()` calls with this function. It works similarly to `getString()`, but is designed for use in Compose functions.
+
+#### Example Usage
 ```kotlin
-DynamicResourceApi.init(engine = UppercaseTranslationEngine())
+// With parameters
+stringResource(LocalContext.current, R.strings.hello, "World", Locale("es"))
+
+// Without parameters
+getString(LocalContext.current, R.strings.name)
 ```
-After registration, all translations will use the `UppercaseTranslationEngine`.
+
+#### Parameters
+- **`context`**: The context, usually set to `LocalContext.current`.
+- **`id`**: The resource ID of the string to translate.
+- **`formatArgs`** (optional): Parameters if your resource string includes placeholders, such as `"Hello $1%s"`.
+- **`locale`** (optional): The target language for translation. If not specified, the default language set in the phone’s system settings will be used.
+
+#### Returns
+A `String` containing the translated text.
+
 
 ## Fine-Tuning Translations
 Override translations in one of the following ways:
@@ -134,6 +132,25 @@ Override translations in one of the following ways:
        )
    )
    ```
+
+## Adding a Custom Translation Engine
+By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator) library.
+You can provide your own translation engine for customized translations.
+For the purposes of illustration, here’s a trivial engine that converts all strings to uppercase.
+
+```kotlin
+class UppercaseTranslationEngine : ITranslationEngine {
+   override fun isInline(): Boolean = true
+   override fun translate(text: String, target: Locale): String = text.uppercase()
+   override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
+}
+```
+To use your custom engine, register it during initialization:
+
+```kotlin
+DynamicResourceApi.init(engine = UppercaseTranslationEngine())
+```
+After registration, all translations will use the `UppercaseTranslationEngine`.
 
 ## Credits
 - This project is using the great [translator](https://github.com/therealbush/translator) Kotlin library.

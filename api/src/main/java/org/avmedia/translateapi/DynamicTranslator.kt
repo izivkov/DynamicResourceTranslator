@@ -28,46 +28,72 @@ class DynamicTranslator (
         return this
     }
 
+    /**
+     * Replace your context.getString() with this function.
+     * ```
+     * getString(context, R.strings.hello, "World", Locale("es"))
+     * getString(context, R.strings.name)
+     * ```
+     * @param context   The context. Could be Application Context.
+     * @param resId The resource ID of the string to translate.
+     * @param formatArgs optional parameters if your resource string takes parameters like "Hello $1%s"
+     * @param locale optional parameters if you like to translate into a specific language. If not provided, the default phone language will be used, set in Android System configuration.
+     *
+     * @return A [String] containing the translated text.
+     */
     override fun getString(
         context: Context,
-        resId: Int,
+        id: Int,
         vararg formatArgs: Any,
         locale: Locale?,
     ): String {
         return if (translator.isInline()) {
             computeValueInline(
                 context = context,
-                resId = resId,
+                resId = id,
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translate(text, language) }
         } else {
             computeValue (
                 context = context,
-                resId = resId,
+                id = id,
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translate(text, language) }
         }
     }
 
+    /**
+     * Replace your context.getString() with this function. Similar to @getString() but for Compose functions
+     * ```
+     * stringResource(LocalContext.current, R.strings.hello, "World", Locale("es"))
+     * getString(LocalContext.current, R.strings.name)
+     * ```
+     * @param context The context. Usually set to `LocalContext.current`
+     * @param id The resource ID of the string to translate.
+     * @param formatArgs optional parameters if your resource string takes parameters like "Hello $1%s"
+     * @param locale optional parameters if you like to translate into a specific language. If not provided, the default phone language will be used, set in Android System configuration.
+     *
+     * @return A [String] containing the translated text.
+     */
     override fun stringResource(
         context: Context,
-        resId: Int,
+        id: Int,
         vararg formatArgs: Any,
         locale: Locale?
     ): String {
         return if (translator.isInline()) {
             computeValueInline(
                 context = context,
-                resId = resId,
+                resId = id,
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translate(text, language) }
         } else {
             computeValue(
                 context = context,
-                resId = resId,
+                id = id,
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translate(text, language) }
@@ -76,21 +102,21 @@ class DynamicTranslator (
 
     override suspend fun stringResourceAsync(
         context: Context,
-        resId: Int,
+        id: Int,
         vararg formatArgs: Any,
         locale: Locale?
     ): String {
         return if (translator.isInline()) {
             computeValueInline(
                 context = context,
-                resId = resId,
+                resId = id,
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translateAsync(text, language) }
         } else {
             computeValue(
                 context = context,
-                resId = resId,
+                id = id,
                 formatArgs = formatArgs,
                 locale = locale
             ) { text: String, language: Locale -> translateAsync(text, language) }
@@ -114,19 +140,19 @@ class DynamicTranslator (
     @Suppress("UNCHECKED_CAST")
     private inline fun <T> computeValue(
         context: Context,
-        resId: Int,
+        id: Int,
         formatArgs: Array<out Any>,
         locale: Locale?,
         translator: (String, Locale) -> T
     ): T {
         val curLocale = locale ?: this.locale
-        val resourceKey = ResourceLocaleKey(resId, curLocale)
+        val resourceKey = ResourceLocaleKey(id, curLocale)
 
         val language = curLocale.language.lowercase()
         require(isValidLanguageCode(language)) { return "Invalid Language code [${language}] provided!" as T }
 
         // check if string in the overwritten table
-        val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale)]
+        val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, curLocale)]
         if (overWrittenValue != null) {
             return String.format(overWrittenValue, *formatArgs) as T
         }
@@ -137,10 +163,10 @@ class DynamicTranslator (
             return storedValue as T
         }
 
-        val formattedString = getStringByLocal(context, resId, formatArgs, language)
+        val formattedString = getStringByLocal(context, id, formatArgs, language)
 
         // if the value exists in the strings.xml for this locale, just return it without translation
-        if (isResourceAvailableForLocale(context, resId, formatArgs, curLocale)) {
+        if (isResourceAvailableForLocale(context, id, formatArgs, curLocale)) {
             return formattedString as T
         }
 
@@ -183,7 +209,7 @@ class DynamicTranslator (
 
     override fun readStringFromDefaultFile(
         context: Context,
-        resId: Int,
+        id: Int,
         formatArgs: Array<out Any>,
     ): String {
         /*
@@ -192,7 +218,7 @@ class DynamicTranslator (
         default.
          */
 
-        return getStringByLocal(context, resId, formatArgs, Locale("kv").language)
+        return getStringByLocal(context, id, formatArgs, Locale("kv").language)
     }
 
     override fun getStringByLocal(
