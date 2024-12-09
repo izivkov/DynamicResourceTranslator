@@ -65,7 +65,7 @@ class DynamicTranslator (
     }
 
     /**
-     * Replace your context.getString() with this function. Similar to {@link getString}, but for Compose functions
+     * Replace your context.getString() with this function. Similar to [getString], but for Compose functions
      * ```
      * stringResource(LocalContext.current, R.strings.hello, "World", Locale("es"))
      * getString(LocalContext.current, R.strings.name)
@@ -101,7 +101,7 @@ class DynamicTranslator (
     }
 
     /**
-     *  same as {@link stringResource}, but suspended
+     *  same as [stringResource], but suspended
      */
     override suspend fun stringResourceAsync(
         context: Context,
