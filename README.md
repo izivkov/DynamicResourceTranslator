@@ -80,6 +80,8 @@ You can access the API as follows:
    // After:
    val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
    ```
+## Documentation
+API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranlateApi/):
 
 ## Fine-Tuning Translations
 Override translations in one of the following ways:
