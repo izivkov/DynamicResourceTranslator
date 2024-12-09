@@ -80,31 +80,7 @@ You can access the API as follows:
    // After:
    val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
    ```
-
-## Function Documentation
-
-### Function: `getString`
-
-Replace your `context.getString()` calls with this function. It works similarly to `getString()`, but is designed for use in Compose functions.
-
-#### Example Usage
-```kotlin
-// With parameters
-stringResource(LocalContext.current, R.strings.hello, "World", Locale("es"))
-
-// Without parameters
-getString(LocalContext.current, R.strings.name)
-```
-
-#### Parameters
-- **`context`**: The context, usually set to `LocalContext.current`.
-- **`id`**: The resource ID of the string to translate.
-- **`formatArgs`** (optional): Parameters if your resource string includes placeholders, such as `"Hello $1%s"`.
-- **`locale`** (optional): The target language for translation. If not specified, the default language set in the phone’s system settings will be used.
-
-#### Returns
-A `String` containing the translated text.
-
+API documentation can ge found [here](https://github.com/izivkov/DynamicResourceTranlateApi/blob/main/docs/index.html):
 
 ## Fine-Tuning Translations
 Override translations in one of the following ways:
