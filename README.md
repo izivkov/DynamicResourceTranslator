@@ -1,6 +1,6 @@
-# DynamicResourceApi
+# DynamicResourceTranslator
 
-DynamicResourceApi is an Android library that simplifies internationalization for your app. You only need to create 
+DynamicResourceTranslator is an Android library that simplifies internationalization for your app. You only need to create 
 a single `strings.xml` file in your native language (not necessarily English), and the library will 
 automatically translate your app into the system language set on the user's phone.
 
@@ -15,7 +15,7 @@ res/
 │   └── strings.xml
 ```
 
-### Using DynamicResourceApi
+### Using DynamicResourceTranslator
 ```
 res/
 ├── values/
@@ -81,7 +81,7 @@ You can access the API as follows:
    val text = api.stringResource(context = LocalContext.current, id = R.string.hello_world)
    ```
 ## Documentation
-API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslateApi/api/org.avmedia.translateapi/-dynamic-translator/index.html):
+API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslator/api/org.avmedia.translateapi/-dynamic-translator/index.html):
 
 ## Fine-Tuning Translations
 Override translations in one of the following tow ways:
