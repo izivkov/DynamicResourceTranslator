@@ -33,8 +33,8 @@ class MainActivity : ComponentActivity() {
             engine = BushTranslationEngine(),
             language = Locale.getDefault(),
             overWrites = arrayOf(
-                ResourceLocaleKey(R.string.hello, Locale("es").language) to "[Hola]",
-                ResourceLocaleKey(R.string.hello, Locale("bg").language) to "Здравей %1$s"
+                ResourceLocaleKey(R.string.hello, Locale("es")) to "[Hola]",
+                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
             )
         )
         .getApi()

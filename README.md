@@ -4,9 +4,9 @@ Here is the polished version of your README file:
 
 # DynamicResourceApi
 
-DynamicResourceApi is an Android library designed to simplify internationalization and localization by dynamically translating string resources at runtime. It eliminates the need for multiple language-specific resource files while respecting existing ones if present. With this API, you only need the default `strings.xml` file under the `res/values/` directory.
-
-## Directory Structure Comparison
+DynamicResourceApi is an Android library that simplifies internationalization for your app. You only need to create 
+a single `strings.xml` file in your native language (not necessarily English), and the library will 
+automatically translate your app into the system language set on the user's phone.
 
 ### Traditional Android Project
 ```
@@ -31,52 +31,60 @@ res/
 
 - Dynamically translates default string resources at runtime.
 - Eliminates the need for multiple language-specific `strings.xml` files, while respecting existing ones.
+- Works with all languages.
+- Preserves and used existing language specific resources.
 - Supports fine-tuned translations when automatic translations are insufficient.
 - Allows multiple language translations on the same page.
-- Provides a pluggable translation engine architecture—customize or transform strings as needed.
+- Provides a pluggable translation engine architecture.
 - Lightweight and easy to integrate.
+
 
 ## How It Works
 
-The library intercepts calls to `getString()` and `stringResource()`, which read from `strings.xml` resource files. It uses a Google translation service to translate the strings based on the language set in the phone's settings. Translated values are stored locally for reuse.
+The library intercepts calls to `getString()` and `stringResource()`, which read from `strings.xml` resource files. 
+It then uses a Google translation service to translate the strings based on the language set in the phone's settings. 
+Translated values are stored in local storage for reuse and better performance.
+
+## Prerequisites
+Your app must have Internet access at least the first time it runs to perform the initial translations.
+Ensure you add the following permissions to your manifest:
+
+```xml
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
 
 ## Usage
 
-### Step 1: Replace `getString` Calls
-Replace traditional `context.getString` calls with the API's `api.getString` method.
+You get access to the API like this:
 
-**Before:**
+Initialize the `DynamicResourceApi` once, usually in `MainActivity` or your application class:
 ```kotlin
-val text = context.getString(R.string.hello_world)
+DynamicResourceApi.init()
+```
+Then access the API anywhere in your program:
+```kotlin
+DynamicResourceApi.getApi()
 ```
 
-**After:**
+In order to translate your string, you must replace`context.getString` calls with the API's `api.getString` method.
+
+```kotlin
+val text = context.getString(R.string.hello_world) 
+```
+becomes:
 ```kotlin
 val text = api.getString(context, R.string.hello_world)
 ```
 
-### Step 2: Replace `stringResource` Calls in Compose
-Replace traditional `stringResource` calls with `dynamicStringResource`.
+For Jetpack Compose calls:
 
-**Before:**
 ```kotlin
 val text = stringResource(id = R.string.hello_world)
 ```
-
-**After:**
+become:
 ```kotlin
 val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
-```
-
-#### Initializing the API
-Initialize the `DynamicResourceApi` once:
-```kotlin
-DynamicResourceApi.init()
-```
-
-Access the API anywhere in your program:
-```kotlin
-private val api = DynamicResourceApi.getApi()
 ```
 
 ## Adding a Custom Translation Engine
@@ -87,11 +95,8 @@ Here is an example of a custom engine that converts all strings to uppercase:
 
 ```kotlin
 class UppercaseTranslationEngine : ITranslationEngine {
-
     override fun isInline(): Boolean = true
-
     override fun translate(text: String, target: Locale): String = text.uppercase()
-
     override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
 }
 ```

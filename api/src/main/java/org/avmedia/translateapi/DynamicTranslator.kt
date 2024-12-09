@@ -120,13 +120,13 @@ class DynamicTranslator (
         translator: (String, Locale) -> T
     ): T {
         val curLocale = locale ?: this.locale
-        val resourceKey = ResourceLocaleKey(resId, curLocale.language)
-        val language = curLocale.language.lowercase()
+        val resourceKey = ResourceLocaleKey(resId, curLocale)
 
+        val language = curLocale.language.lowercase()
         require(isValidLanguageCode(language)) { return "Invalid Language code [${language}] provided!" as T }
 
         // check if string in the overwritten table
-        val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale.language)]
+        val overWrittenValue = translationOverwrites[ResourceLocaleKey(resId, curLocale)]
         if (overWrittenValue != null) {
             return String.format(overWrittenValue, *formatArgs) as T
         }
