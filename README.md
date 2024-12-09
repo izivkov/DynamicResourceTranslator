@@ -89,35 +89,24 @@ You can access the API as follows:
    val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
    ```
 
----
-
-This reduces redundancy while maintaining clarity. Let me know if you'd like further refinements!
-
 ## Adding a Custom Translation Engine
-By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator). You can provide your own translation engine for customized translations.
-
-### Example: UppercaseTranslationEngine
-Here is an example of a custom engine that converts all strings to uppercase:
+By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator) library. 
+You can provide your own translation engine for customized translations.
+For the purposes of illustration, here’s a trivial engine that converts all strings to uppercase.
 
 ```kotlin
 class UppercaseTranslationEngine : ITranslationEngine {
-    override fun isInline(): Boolean = true
-    override fun translate(text: String, target: Locale): String = text.uppercase()
-    override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
+   override fun isInline(): Boolean = true
+   override fun translate(text: String, target: Locale): String = text.uppercase()
+   override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
 }
 ```
+To use your custom engine, register it during initialization:
 
-### Using a Custom Engine
-Register your custom engine during initialization:
 ```kotlin
 DynamicResourceApi.init(engine = UppercaseTranslationEngine())
 ```
 After registration, all translations will use the `UppercaseTranslationEngine`.
-
-## Respecting Existing Language-Specific Resources
-DynamicResourceApi prioritizes existing language-specific resources. For example:
-- If a `values-es/strings.xml` file is available for Spanish, it will use translations from this file.
-- If no such file exists, the default `strings.xml` is dynamically translated at runtime.
 
 ## Fine-Tuning Translations
 Override translations in one of the following ways:
