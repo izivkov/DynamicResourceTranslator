@@ -78,13 +78,13 @@ You can access the API as follows:
    val text = stringResource(id = R.string.hello_world)
 
    // After:
-   val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
+   val text = api.stringResource(context = LocalContext.current, id = R.string.hello_world)
    ```
 ## Documentation
 API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslateApi/api/org.avmedia.translateapi/-dynamic-translator/index.html):
 
 ## Fine-Tuning Translations
-Override translations in one of the following ways:
+Override translations in one of the following tow ways:
 
 1. **Language-Specific `strings.xml` File**  
    Add a partial `strings.xml` file for specific languages with only the strings you want to override.
