@@ -1,8 +1,10 @@
+Here is the polished version of your README file:
+
+---
+
 # DynamicResourceApi
 
-DynamicResourceApi is an Android library designed to simplify internationalization and localization by dynamically translating string resources at runtime. 
-The API eliminates the need for multiple language-specific resource files while respecting existing language-specific resources if they are present. 
-With this API, you only need the default `strings.xml` file under the `res/values/` directory.
+DynamicResourceApi is an Android library designed to simplify internationalization and localization by dynamically translating string resources at runtime. It eliminates the need for multiple language-specific resource files while respecting existing ones if present. With this API, you only need the default `strings.xml` file under the `res/values/` directory.
 
 ## Directory Structure Comparison
 
@@ -23,26 +25,25 @@ res/
 ├── values/
 │   └── strings.xml
 ```
-> Note: Language-specific directories (e.g., `values-es/`, `values-fr/`) are optional. If they exist, they will be respected by the API.
+> **Note:** Language-specific directories (e.g., `values-es/`, `values-fr/`) are optional. If they exist, the API will respect them.
 
 ## Features
 
-- Translates default string resources dynamically at runtime.
-- Eliminates the need to create a language-specific strings.xml files, but will respect the ones that are present.
-- Can fine-tune translations if automatic translation for some string not acceptable.
-- Allows for multiple language translations on the same page.
-- Pluggable translation engine architecture. Provide your own translation engine, or even transform your string in any way you see fit.
+- Dynamically translates default string resources at runtime.
+- Eliminates the need for multiple language-specific `strings.xml` files, while respecting existing ones.
+- Supports fine-tuned translations when automatic translations are insufficient.
+- Allows multiple language translations on the same page.
+- Provides a pluggable translation engine architecture—customize or transform strings as needed.
 - Lightweight and easy to integrate.
 
-## How it Works
+## How It Works
 
-The library intercepts calls to `getString()` and `stringResource()`, which read from `strings.xml` resource files. It than uses a Google translation service over the Internet
-to translate the strings according to the language set in your phones settings. Once translated, the values are stored in local storage, to be re-used next time.
+The library intercepts calls to `getString()` and `stringResource()`, which read from `strings.xml` resource files. It uses a Google translation service to translate the strings based on the language set in the phone's settings. Translated values are stored locally for reuse.
 
-## How to Use the API
+## Usage
 
 ### Step 1: Replace `getString` Calls
-Replace traditional `context.getString` calls with the new API's `api.getString` method. For example:
+Replace traditional `context.getString` calls with the API's `api.getString` method.
 
 **Before:**
 ```kotlin
@@ -53,6 +54,7 @@ val text = context.getString(R.string.hello_world)
 ```kotlin
 val text = api.getString(context, R.string.hello_world)
 ```
+
 ### Step 2: Replace `stringResource` Calls in Compose
 Replace traditional `stringResource` calls with `dynamicStringResource`.
 
@@ -66,90 +68,74 @@ val text = stringResource(id = R.string.hello_world)
 val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
 ```
 
-The ```api``` variable can be created as follows:
-
-Initialise the ```DynamicResourceApi``` once:
+#### Initializing the API
+Initialize the `DynamicResourceApi` once:
 ```kotlin
 DynamicResourceApi.init()
 ```
 
-Then obtain the api anywhere in your program like this:
-
+Access the API anywhere in your program:
 ```kotlin
 private val api = DynamicResourceApi.getApi()
 ```
 
 ## Adding a Custom Translation Engine
-By default, this library uses ts built-in `BushTranslationEngine` for translation, which is based in [this](https://github.com/therealbush/translator) library. 
-You can provide your own translation engine to customize the way strings are translated. For an illustration purpouse, here is a simple `UppercaseTranslationEngine` which simply 
-transforms all passed strings to uppercase. Note that the Translation Engine must implement interface `ITranslationEngine`.
+By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator). You can provide your own translation engine for customized translations.
 
 ### Example: UppercaseTranslationEngine
+Here is an example of a custom engine that converts all strings to uppercase:
+
 ```kotlin
-class UppercaseTranslationEngine: ITranslationEngine {
+class UppercaseTranslationEngine : ITranslationEngine {
 
-    override fun isInline(): Boolean {
-        return true
-    }
+    override fun isInline(): Boolean = true
 
-    override fun translate(text: String, target: Locale): String {
-        return text.uppercase()
-    }
+    override fun translate(text: String, target: Locale): String = text.uppercase()
 
-    override suspend fun translateAsync(text: String, target: Locale): String {
-        return text.uppercase() 
-    }
+    override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
 }
 ```
 
-### Plugging in a Custom Engine
-To use your custom translation engine, register it using the API's configuration.
-
-We plug in into the api like this when we first initialise it:
-
+### Using a Custom Engine
+Register your custom engine during initialization:
 ```kotlin
 DynamicResourceApi.init(engine = UppercaseTranslationEngine())
 ```
-After registering, all string translations will use the `UppercaseTranslationEngine`.
+After registration, all translations will use the `UppercaseTranslationEngine`.
 
 ## Respecting Existing Language-Specific Resources
-DynamicResourceApi prioritizes existing language-specific resources if they exist. For example:
+DynamicResourceApi prioritizes existing language-specific resources. For example:
+- If a `values-es/strings.xml` file is available for Spanish, it will use translations from this file.
+- If no such file exists, the default `strings.xml` is dynamically translated at runtime.
 
-- If a `values-es/strings.xml` file is present for Spanish, the API will use the translation from this file for `getString` or `stringResource` calls.
-- If no language-specific resource exists, the default `strings.xml` is translated dynamically at runtime.
+## Fine-Tuning Translations
+Override translations in one of the following ways:
 
-## Fine tuning the translation
-If you like to override the way a particular string is translated, you can do it an one of two ways:
+1. **Language-Specific `strings.xml` File**  
+   Add a partial `strings.xml` file for specific languages with only the strings you want to override.
 
-1. Provide a partial `string.xml` file for that language, containing only yhr strings you like yo override. For example for Spanish, in file:
+   Example for Spanish (`values-es/strings.xml`):
+   ```xml
+   <resources>
+       <string name="title_time">Hora</string>
+   </resources>
+   ```
+   The string with the ID `R.string.title_time` will always be translated as `Hora`, regardless of the automatic translation.
 
-├── values-es/
-│   └── strings.xml
-
-if you have:
-
-```xml
-<resources>
-    <string name="title_time">Hora</string>
-</resources>
-```
-the string with the ID 
-```kotlin
-R.strins.title_time
-```
-will be always translated as `Hora`, no matter what the automatic translation returns.
-
-2. When initializing the api, you can provide an `overWrites` parameter containg an array of strings and Local to overwrite the automatic translation: 
-```kotlin
-DynamicResourceApi
-        .init(
-            overWrites = arrayOf(
-                ResourceLocaleKey(R.string.hello, Locale("es").language) to "[Hola]",
-                ResourceLocaleKey(R.string.hello, Locale("bg").language) to "Здравей %1$s"
-            )
-        )
-```
+2. **Providing Overrides in Code**  
+   Use the `overWrites` parameter during initialization:
+   ```kotlin
+   DynamicResourceApi.init(
+       overWrites = arrayOf(
+           ResourceLocaleKey(R.string.hello, Locale("es").language) to "Hola",
+           ResourceLocaleKey(R.string.hello, Locale("bg").language) to "Здравей %1$s"
+       )
+   )
+   ```
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
+---
+
+This version improves grammar, consistency, and readability while retaining all original details. Let me know if you need additional adjustments!
