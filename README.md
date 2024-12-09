@@ -50,42 +50,48 @@ Your app must have Internet access at least the first time it runs to perform th
 Ensure you add the following permissions to your manifest:
 
 ```xml
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
 ## Usage
 
-You get access to the API like this:
+Here’s a more compact version of your markup, combining the "before" and "after" code snippets into a single block:
 
-Initialize the `DynamicResourceApi` once, usually in `MainActivity` or your application class:
-```kotlin
-DynamicResourceApi.init()
-```
-Then access the API anywhere in your program:
-```kotlin
-DynamicResourceApi.getApi()
-```
+---
 
-In order to translate your string, you must replace`context.getString` calls with the API's `api.getString` method.
+You can access the API as follows:
 
-```kotlin
-val text = context.getString(R.string.hello_world) 
-```
-becomes:
-```kotlin
-val text = api.getString(context, R.string.hello_world)
-```
+1. **Initialize** `DynamicResourceApi` once, typically in `MainActivity` or your application class:
+   ```kotlin
+   DynamicResourceApi.init()
+   ```
+   Then retrieve the API anywhere in your program:
+   ```kotlin
+   val api = DynamicResourceApi.getApi()
+   ```
 
-For Jetpack Compose calls:
+2. **Replace** `context.getString` calls with `api.getString`:
+   ```kotlin
+   // Before:
+   val text = context.getString(R.string.hello_world) 
+   
+   // After:
+   val text = api.getString(context, R.string.hello_world)
+   ```
 
-```kotlin
-val text = stringResource(id = R.string.hello_world)
-```
-become:
-```kotlin
-val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
-```
+3. **For Jetpack Compose**, replace `stringResource` with `api.stringResource`:
+   ```kotlin
+   // Before:
+   val text = stringResource(id = R.string.hello_world)
+
+   // After:
+   val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
+   ```
+
+---
+
+This reduces redundancy while maintaining clarity. Let me know if you'd like further refinements!
 
 ## Adding a Custom Translation Engine
 By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator). You can provide your own translation engine for customized translations.
