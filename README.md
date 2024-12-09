@@ -81,7 +81,7 @@ You can access the API as follows:
    val text = api.stringResource(context = LocalContext.current, resId = R.string.hello_world)
    ```
 ## Documentation
-API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslateApi/api/org.avmedia.translateapi/-dynamic-translator/l):
+API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslateApi/api/org.avmedia.translateapi/-dynamic-translator/index.html):
 
 ## Fine-Tuning Translations
 Override translations in one of the following ways:
