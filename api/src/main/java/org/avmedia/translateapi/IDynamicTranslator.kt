@@ -13,7 +13,7 @@ interface IDynamicTranslator {
     fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator
     fun getString(
         context: Context,
-        resId: Int,
+        id: Int,
         vararg formatArgs: Any,
         locale: Locale? = null,
     ): String
@@ -31,29 +31,4 @@ interface IDynamicTranslator {
         vararg formatArgs: Any,
         locale: Locale? = null
     ): String
-
-    fun translate(inText: String, locale: Locale): String
-
-    suspend fun translateAsync(inText: String, locale: Locale): String
-    fun isResourceAvailableForLocale(
-        context: Context,
-        id: Int,
-        formatArgs: Array<out Any>,
-        locale: Locale,
-    ): Boolean
-
-    fun readStringFromDefaultFile(
-        context: Context,
-        id: Int,
-        formatArgs: Array<out Any>,
-    ): String
-
-    fun getStringByLocal(
-        context: Context,
-        id: Int,
-        formatArgs: Array<out Any>,
-        locale: String?
-    ): String
-
-    fun isValidLanguageCode(input: String): Boolean
 }

@@ -65,7 +65,7 @@ class DynamicTranslator (
     }
 
     /**
-     * Replace your context.getString() with this function. Similar to @getString() but for Compose functions
+     * Replace your context.getString() with this function. Similar to {@link getString}, but for Compose functions
      * ```
      * stringResource(LocalContext.current, R.strings.hello, "World", Locale("es"))
      * getString(LocalContext.current, R.strings.name)
@@ -100,6 +100,9 @@ class DynamicTranslator (
         }
     }
 
+    /**
+     *  same as {@link stringResource}, but suspended
+     */
     override suspend fun stringResourceAsync(
         context: Context,
         id: Int,
@@ -181,15 +184,15 @@ class DynamicTranslator (
         return translatedValue
     }
 
-    override fun translate(inText: String, locale: Locale): String {
+    private fun translate(inText: String, locale: Locale): String {
         return translator.translate(inText, locale)
     }
 
-    override suspend fun translateAsync(inText: String, locale: Locale): String {
+    private suspend fun translateAsync(inText: String, locale: Locale): String {
         return translator.translateAsync(inText, locale)
     }
 
-    override fun isResourceAvailableForLocale(
+    private fun isResourceAvailableForLocale(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
@@ -207,7 +210,7 @@ class DynamicTranslator (
         return localStr != defaultStr
     }
 
-    override fun readStringFromDefaultFile(
+    private fun readStringFromDefaultFile(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
@@ -221,7 +224,7 @@ class DynamicTranslator (
         return getStringByLocal(context, id, formatArgs, Locale("kv").language)
     }
 
-    override fun getStringByLocal(
+    private fun getStringByLocal(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
@@ -235,7 +238,7 @@ class DynamicTranslator (
         )
     }
 
-    override fun isValidLanguageCode(input: String): Boolean {
+    private fun isValidLanguageCode(input: String): Boolean {
         val languageCodes = arrayOf(
             "aa", "ab", "ae", "af", "ak", "am", "an", "ar", "as", "av", "ay", "az",
             "ba", "be", "bg", "bh", "bi", "bm", "bn", "bo", "br", "bs", "ca", "ce",
