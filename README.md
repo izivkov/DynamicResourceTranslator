@@ -80,6 +80,26 @@ You can access the API as follows:
    // After:
    val text = api.stringResource(context = LocalContext.current, id = R.string.hello_world)
    ```
+   
+## Quick Start
+
+Add the following to your **build.gradle** file:
+
+```groovy
+
+dependencyResolutionManagement {
+   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+   repositories {
+      mavenCentral()
+      maven { url 'https://jitpack.io' }
+   }
+}
+	
+dependencies {
+   implementation 'com.github.izivkov:DynamicResourceTranslator:Tag'
+}
+```
+
 ## Documentation
 API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslator/api/org.avmedia.translateapi/-dynamic-translator/index.html):
 
