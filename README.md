@@ -83,7 +83,7 @@ You can access the API as follows:
    
 ## Quick Start
 
-Add the following to your **build.gradle** file:
+Add the following to your **settings.gradle** file:
 
 ```groovy
 
@@ -94,7 +94,8 @@ dependencyResolutionManagement {
       maven { url 'https://jitpack.io' }
    }
 }
-	
+
+Add the following to your **build.gradle** file:
 dependencies {
    implementation 'com.github.izivkov:DynamicResourceTranslator:Tag'
 }
