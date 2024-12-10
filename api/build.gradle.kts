@@ -2,11 +2,10 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("org.jetbrains.dokka") version("1.9.20")
-    id("maven-publish")
 }
 
 android {
-    namespace = "org.avmedia.translateApi"
+    namespace = "org.avmedia.translateapi"
 
     compileSdk = 34
 
