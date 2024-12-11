@@ -4,3 +4,12 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android) apply false
     alias(libs.plugins.android.library) apply false
 }
+
+buildscript {
+    dependencies {
+        // classpath (libs.gradle)
+        classpath ("com.android.tools.build:gradle:8.5.2")
+
+        classpath(libs.kotlin.gradle.plugin)
+    }
+}
