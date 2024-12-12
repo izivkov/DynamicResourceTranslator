@@ -25,9 +25,8 @@ res/
 
 ## Features
 
-- Dynamically translates default string resources at runtime.
-- Eliminates the need for multiple language-specific `strings.xml` files, while respecting existing ones.
-- Preserves and used existing language specific resources.
+- Dynamically translates default string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
+- Prioritise existing language specific `string.xml`, if resent.
 - Supports fine-tuned translations when automatic translations are insufficient.
 - Allows multiple language translations on the same page.
 - Provides a pluggable translation engine architecture.
@@ -49,11 +48,9 @@ Ensure you add the following permissions to your manifest:
 
 ## Usage
 
-You can access the API as follows:
-
 ### Getting Access to the API
 
-#### Use Singleton Object
+#### Method 1: Use Singleton Object
 The easiest way to get access to the API is through a Singleton object DynamicResourceApi, which wraps the class containing the API methods.
 
 **Initialize** `DynamicResourceApi` once, typically in `MainActivity` or your application class:
@@ -62,23 +59,20 @@ The easiest way to get access to the API is through a Singleton object DynamicRe
    ```
    
 init can take optional parameters:
-```kotlin
- fun init(
-    engine: ITranslationEngine? = null, // Optional translation engine (see below)
-    language: Locale = Locale.getDefault(), // If provided, translate into the Locale's language, instead of the phone's default 
-    overWrites: Array<Pair<ResourceLocaleKey, String>> = arrayOf() // Optionally, provide an array of language translations for fine-tuning your translation (see below).
- ): DynamicResourceApi { // return the object, so this call can be chained.
-        /* ... */
-        return this
-    }
 ```
-   Then retrieve the API anywhere in your program:
+ fun init(
+    engine: ITranslationEngine?,    // Optional translation engine (see below)
+    language: Locale,               // If provided, translate into the Locale's language instead of the phone's default 
+    overWrites: Array<Pair<ResourceLocaleKey, String>> // Optionally, provide an array of language translations for fine-tuning your translation (see below).
+ )
+ ```
+   
+Then retrieve the API anywhere in your program:
    ```kotlin
    val api = DynamicResourceApi.getApi()
-   ```
+```
 
-#### Create the API in your code
-Alternatively, you can create the API in your code like this:
+#### Method 2: Create the API dynamically
 
 ```kotlin
     val api = DynamicTranslator()
