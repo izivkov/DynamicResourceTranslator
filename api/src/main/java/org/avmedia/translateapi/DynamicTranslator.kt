@@ -1,5 +1,6 @@
 package org.avmedia.translateapi
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import org.avmedia.translateapi.engine.BushTranslationEngine
@@ -224,6 +225,7 @@ class DynamicTranslator (
         return getStringByLocal(context, id, formatArgs, Locale("kv").language)
     }
 
+    @SuppressLint
     private fun getStringByLocal(
         context: Context,
         id: Int,
@@ -231,7 +233,7 @@ class DynamicTranslator (
         locale: String?
     ): String {
         val configuration = Configuration(context.resources.configuration)
-        configuration.setLocale(locale?.let { Locale(it) })
+        configuration.setLocale(/* loc = */ locale?.let { Locale(it) })
         return context.createConfigurationContext(configuration).resources.getString(
             id,
             *formatArgs

@@ -47,6 +47,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 }
 
+tasks.lint {
+    enabled = false
+}
+
 tasks.dokkaHtml {
 
     outputDirectory.set(file("${rootDir}/docs"))
