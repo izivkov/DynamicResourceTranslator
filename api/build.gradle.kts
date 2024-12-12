@@ -53,13 +53,9 @@ tasks.lint {
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-        }
-
         register<MavenPublication>("release") {
             groupId = "org.avmedia"
-            artifactId = "tralslateApi"
+            artifactId = "translateApi"
             version = "1.0.0"
 
             afterEvaluate {
