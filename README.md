@@ -146,16 +146,24 @@ Override translations in one of the following tow ways:
 
 2. **Providing Overrides in Code**  
    Use the `overWrites` parameter during initialization:
-   ```kotlin
-   DynamicResourceApi.init(
-       overWrites = arrayOf(
-           ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-           ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1$s",
-           ResourceLocaleKey(R.string.auto_configure_settings, Locale("pt")) to "Auto",
-           /* ... */
-       )
-   )
-   ```
+
+```kotlin
+      DynamicResourceApi.init()
+          .setOverwrites(                 // optional 
+             arrayOf(
+                ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+             )
+        )
+```
+
+In addition, the API provides two functions to add overwrites from anywhere in your code:
+
+```
+    fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>)
+    
+    fun addOverwrite(overWrite: Pair<ResourceLocaleKey, String>)
+```
 
 ## Adding a Custom Translation Engine
 By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator) library.
@@ -183,7 +191,7 @@ restarting the app, will load at normal speed.
 
 We are exploring ways to further improve the initial load performance:
 
-1. Use asynchronous functions like stringResourceAsync() to perform translations in the background and update the screen once the translation is complete. 
+1. Use asynchronous functions like `stringResourceAsync()` to perform translations in the background and update the screen once the translation is complete. 
 However, this approach requires more code changes in the app and is not recommended at this time.
 
 2. Perform a bulk translation at app startup and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
