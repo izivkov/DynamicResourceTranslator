@@ -8,11 +8,11 @@ import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
 
 class DynamicTranslator (
-    private var translator: ITranslationEngine = BushTranslationEngine()
 ) : IDynamicTranslator {
     override var locale = Locale.getDefault()
     override val translationOverwrites = TranslationOverwrites()
     override val networkConnectionChecker = NetworkConnectionChecker ()
+    private var translator: ITranslationEngine = BushTranslationEngine()
 
     override fun init(): DynamicTranslator {
         // Do initialization here...
@@ -24,7 +24,13 @@ class DynamicTranslator (
         return this
     }
 
+    override fun setEngine(engine: ITranslationEngine): DynamicTranslator {
+        this.translator = engine
+        return this
+    }
+
     override fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator {
+        translationOverwrites.clear()
         translationOverwrites.addAll(entries)
         return this
     }

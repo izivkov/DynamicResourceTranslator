@@ -29,14 +29,12 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private val api = DynamicResourceApi
-        .init(
-            engine = BushTranslationEngine(),
-            language = Locale.getDefault(),
-            overWrites = arrayOf(
-                ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
-            )
-        )
+        .init()
+        .setOverwrites(arrayOf(
+            ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+            ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+        )).setLanguage(Locale.getDefault())
+        .setEngine(BushTranslationEngine())
         .getApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {

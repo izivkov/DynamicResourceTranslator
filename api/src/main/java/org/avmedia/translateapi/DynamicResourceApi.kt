@@ -7,9 +7,23 @@ import java.util.Locale
 object DynamicResourceApi {
     private lateinit var translator: DynamicTranslator
 
-    fun init(engine: ITranslationEngine? = null, language: Locale = Locale.getDefault(), overWrites: Array<Pair<ResourceLocaleKey, String>> = arrayOf()): DynamicResourceApi {
-        translator = DynamicTranslator(engine ?: BushTranslationEngine())
-        translator.init().setOverwrites(overWrites).setLanguage(language)
+    fun init(): DynamicResourceApi {
+        translator.init()
+        return this
+    }
+
+    fun setLanguage(locale: Locale): DynamicResourceApi {
+        getApi().setLanguage(locale)
+        return this
+    }
+
+    fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicResourceApi {
+        getApi().setOverwrites(entries)
+        return this
+    }
+
+    fun setEngine(engine: ITranslationEngine): DynamicResourceApi {
+        getApi().setEngine(engine)
         return this
     }
 

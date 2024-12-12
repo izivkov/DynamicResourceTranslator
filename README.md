@@ -45,6 +45,25 @@ Ensure you add the following permissions to your manifest:
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
+## Quick Start
+
+Add the following to your **settings.gradle** file:
+
+```groovy
+
+dependencyResolutionManagement {
+   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+   repositories {
+      mavenCentral()
+      maven { url 'https://jitpack.io' }
+   }
+}
+
+Add the following to your **build.gradle** file:
+dependencies {
+   implementation 'com.github.izivkov:DynamicResourceTranslator:Tag'
+}
+```
 
 ## Usage
 
@@ -57,15 +76,17 @@ Initialize `DynamicResourceApi` once, typically in `MainActivity` or your applic
    ```kotlin
    DynamicResourceApi.init()
    ```
-   
-`init()` can take optional parameters:
+Optionally, you can also set language, overWrites and Translation Engine like this: 
+
+```kotlin
+    DynamicResourceApi.init()
+        .setOverwrites(arrayOf(
+            ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+            ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+        ))
+        .setLanguage(Locale("es"))
+        .setEngine(UppercaseTranslationEngine())
 ```
- fun init(
-    engine: ITranslationEngine?,    // Optional translation engine (see below)
-    language: Locale,               // If provided, translate into the Locale's language instead of the phone's default 
-    overWrites: Array<Pair<ResourceLocaleKey, String>> // Optionally, provide an array of language translations for fine-tuning your translation (see below).
- )
- ```
    
 Then retrieve the API anywhere in your program:
    ```kotlin
@@ -105,26 +126,6 @@ This method is better suitable if you like to use [Dagger/Hilt](https://develope
    // After:
    val text = api.stringResource(context = LocalContext.current, id = R.string.hello_world)
    ``` 
-
-## Quick Start
-
-Add the following to your **settings.gradle** file:
-
-```groovy
-
-dependencyResolutionManagement {
-   repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-   repositories {
-      mavenCentral()
-      maven { url 'https://jitpack.io' }
-   }
-}
-
-Add the following to your **build.gradle** file:
-dependencies {
-   implementation 'com.github.izivkov:DynamicResourceTranslator:Tag'
-}
-```
 
 ## Documentation
 API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslator/api/org.avmedia.translateapi/-dynamic-translator/index.html):
@@ -174,6 +175,19 @@ To use your custom engine, register it during initialization:
 DynamicResourceApi.init(engine = UppercaseTranslationEngine())
 ```
 After registration, all translations will use the `UppercaseTranslationEngine`.
+
+## Performance
+When loading the app for the first time, if no `strings.xml` file is available for the phone's default language, 
+there may be a delay per screen as the content is being translated. Subsequent access to the same screen, even after 
+restarting the app, will load at normal speed.
+
+We are exploring ways to further improve the initial load performance:
+
+1. Use asynchronous functions like stringResourceAsync() to perform translations in the background and update the screen once the translation is complete. 
+However, this approach requires more code changes in the app and is not recommended at this time.
+
+2. Perform a bulk translation at app startup and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
+the translation library does not support bulk translations, but we are looking to add this feature.
 
 ## Credits
 - This project is using the great [translator](https://github.com/therealbush/translator) Kotlin library.

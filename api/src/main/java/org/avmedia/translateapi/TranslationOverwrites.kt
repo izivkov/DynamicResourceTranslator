@@ -19,6 +19,10 @@ class TranslationOverwrites {
         return resourceLocaleMap[key]
     }
 
+    fun clear() {
+        resourceLocaleMap.clear()
+    }
+
     // For testing or accessing the map
     fun getMap(): Map<ResourceLocaleKey, String> = resourceLocaleMap
 }
