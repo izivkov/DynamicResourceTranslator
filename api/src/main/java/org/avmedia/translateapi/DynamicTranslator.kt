@@ -29,6 +29,14 @@ class DynamicTranslator (
         return this
     }
 
+    override fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>) {
+        translationOverwrites.addAll(entries)
+    }
+
+    override fun addOverwrite(overWrite: Pair<ResourceLocaleKey, String>) {
+        translationOverwrites.add(overWrite.first, overWrite.second)
+    }
+
     /**
      * Replace your context.getString() with this function.
      * ```

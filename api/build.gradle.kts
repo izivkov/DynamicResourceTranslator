@@ -47,10 +47,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
 }
 
-tasks.lint {
-    enabled = false
-}
-
 publishing {
     publications {
         register<MavenPublication>("release") {

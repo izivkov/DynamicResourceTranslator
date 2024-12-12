@@ -27,13 +27,10 @@ res/
 
 - Dynamically translates default string resources at runtime.
 - Eliminates the need for multiple language-specific `strings.xml` files, while respecting existing ones.
-- Works with all languages.
 - Preserves and used existing language specific resources.
 - Supports fine-tuned translations when automatic translations are insufficient.
 - Allows multiple language translations on the same page.
 - Provides a pluggable translation engine architecture.
-- Lightweight and easy to integrate.
-
 
 ## How It Works
 
@@ -54,16 +51,50 @@ Ensure you add the following permissions to your manifest:
 
 You can access the API as follows:
 
-1. **Initialize** `DynamicResourceApi` once, typically in `MainActivity` or your application class:
+### Getting Access to the API
+
+#### Use Singleton Object
+The easiest way to get access to the API is through a Singleton object DynamicResourceApi, which wraps the class containing the API methods.
+
+**Initialize** `DynamicResourceApi` once, typically in `MainActivity` or your application class:
    ```kotlin
    DynamicResourceApi.init()
    ```
+   
+init can take optional parameters:
+```kotlin
+ fun init(
+    engine: ITranslationEngine? = null, // Optional translation engine (see below)
+    language: Locale = Locale.getDefault(), // If provided, translate into the Locale's language, instead of the phone's default 
+    overWrites: Array<Pair<ResourceLocaleKey, String>> = arrayOf() // Optionally, provide an array of language translations for fine-tuning your translation (see below).
+ ): DynamicResourceApi { // return the object, so this call can be chained.
+        /* ... */
+        return this
+    }
+```
    Then retrieve the API anywhere in your program:
    ```kotlin
    val api = DynamicResourceApi.getApi()
    ```
 
-2. **Replace** `context.getString` calls with `api.getString`:
+#### Create the API in your code
+Alternatively, you can create the API in your code like this:
+
+```kotlin
+    val api = DynamicTranslator()
+        .init ()            
+        .setLanguage(Locale("es"))      // optional
+        .setOverwrites(                 // optional
+           arrayOf(
+              ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+              ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+           )
+        )
+```
+This method is better suitable if you like to use Dagger/Hilt and inject the API in you code.
+
+### Using it in your code
+**Replace** `context.getString` calls with `api.getString`:
    ```kotlin
    // Before:
    val text = context.getString(R.string.hello_world) 
@@ -72,15 +103,15 @@ You can access the API as follows:
    val text = api.getString(context, R.string.hello_world)
    ```
 
-3. **For Jetpack Compose**, replace `stringResource` with `api.stringResource`:
+**For Jetpack Compose**, replace `stringResource` with `api.stringResource`:
    ```kotlin
    // Before:
    val text = stringResource(id = R.string.hello_world)
 
    // After:
    val text = api.stringResource(context = LocalContext.current, id = R.string.hello_world)
-   ```
-   
+   ``` 
+
 ## Quick Start
 
 Add the following to your **settings.gradle** file:
