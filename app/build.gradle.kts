@@ -18,6 +18,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        testFixtures {
+            enable = true
+        }
     }
 
     buildTypes {

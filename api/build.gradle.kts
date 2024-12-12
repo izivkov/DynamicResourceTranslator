@@ -51,6 +51,25 @@ tasks.lint {
     enabled = false
 }
 
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+        }
+
+        register<MavenPublication>("release") {
+            groupId = "org.avmedia"
+            artifactId = "tralslateApi"
+            version = "1.0.0"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
+}
+
+
 tasks.dokkaHtml {
 
     outputDirectory.set(file("${rootDir}/docs"))
