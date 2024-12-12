@@ -25,7 +25,7 @@ res/
 
 ## Features
 
-- Dynamically translates default string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
+- Dynamically translates string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
 - Prioritise existing language specific `string.xml`, if resent.
 - Supports fine-tuned translations when automatic translations are insufficient.
 - Allows multiple language translations on the same page.
@@ -38,7 +38,7 @@ It then uses a Google translation service to translate the strings based on the 
 Translated values are stored in local storage for reuse and better performance.
 
 ## Prerequisites
-Your app must have Internet access at least the first time it runs to perform the initial translations.
+Your app must have Internet access at least the first time your app runs to perform the initial translations.
 Ensure you add the following permissions to your manifest:
 
 ```xml
@@ -51,14 +51,14 @@ Ensure you add the following permissions to your manifest:
 ### Getting Access to the API
 
 #### Method 1: Use Singleton Object
-The easiest way to get access to the API is through a Singleton object DynamicResourceApi, which wraps the class containing the API methods.
+The easiest way to get access to the API is through a Singleton object `DynamicResourceApi`, which wraps the class containing the API methods.
 
-**Initialize** `DynamicResourceApi` once, typically in `MainActivity` or your application class:
+Initialize `DynamicResourceApi` once, typically in `MainActivity` or your application class:
    ```kotlin
    DynamicResourceApi.init()
    ```
    
-init can take optional parameters:
+`init()` can take optional parameters:
 ```
  fun init(
     engine: ITranslationEngine?,    // Optional translation engine (see below)
@@ -85,7 +85,7 @@ Then retrieve the API anywhere in your program:
            )
         )
 ```
-This method is better suitable if you like to use Dagger/Hilt and inject the API in you code.
+This method is better suitable if you like to use [Dagger/Hilt](https://developer.android.com/training/dependency-injection/hilt-android) and inject the API in you code.
 
 ### Using it in your code
 **Replace** `context.getString` calls with `api.getString`:
