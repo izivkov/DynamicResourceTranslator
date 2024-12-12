@@ -76,7 +76,7 @@ Initialize `DynamicResourceApi` once, typically in `MainActivity` or your applic
    ```kotlin
    DynamicResourceApi.init()
    ```
-Optionally, you can also set language, overWrites and Translation Engine like this: 
+Optionally, you can also set `language`, `overWrites` and `Translation Engine` like this: 
 
 ```kotlin
     DynamicResourceApi.init()

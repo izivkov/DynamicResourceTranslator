@@ -40,8 +40,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
-
         setContent {
             DynamicResourceTranslatorTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -120,6 +118,9 @@ class MainActivity : ComponentActivity() {
         Column(
             Modifier
         ) {
+            // overwrite translation here if you like.
+            // api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("bg")) to "[[Hola]]")
+
             Text(
                 text = api.stringResource(
                     LocalContext.current,

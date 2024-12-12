@@ -8,7 +8,11 @@ object DynamicResourceApi {
     private lateinit var translator: DynamicTranslator
 
     fun init(): DynamicResourceApi {
+
+        translator = DynamicTranslator()
         translator.init()
+        translator.setEngine(BushTranslationEngine())
+
         return this
     }
 
