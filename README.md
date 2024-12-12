@@ -2,7 +2,7 @@
 
 DynamicResourceTranslator is an Android library that simplifies internationalization for your app. You only need to create 
 a single `strings.xml` file in your native language (not necessarily English), and the library will 
-automatically translate your app into the system language set on the user's phone.
+automatically translate your app into the system language set on the user's phone "on-the-fly".
 
 ### Traditional Android Project
 ```
@@ -26,8 +26,8 @@ res/
 ## Features
 
 - Dynamically translates string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
-- Prioritise existing language specific `string.xml`, if resent.
-- Supports fine-tuned translations when automatic translations are insufficient.
+- Respect existing language-specific `string.xml`, if resent.
+- Supports fine-tuning of translation when automatic translations should be corrected ot shortened.
 - Allows multiple language translations on the same page.
 - Provides a pluggable translation engine architecture.
 
@@ -38,7 +38,7 @@ It then uses a Google translation service to translate the strings based on the 
 Translated values are stored in local storage for reuse and better performance.
 
 ## Prerequisites
-Your app must have Internet access at least the first time your app runs to perform the initial translations.
+Your app must have Internet access, at least the first time your app runs, to perform the initial translations.
 Ensure you add the following permissions to your manifest:
 
 ```xml
@@ -76,7 +76,7 @@ Initialize `DynamicResourceApi` once, typically in `MainActivity` or your applic
    ```kotlin
    DynamicResourceApi.init()
    ```
-Optionally, you can also set `language`, `overWrites` and `Translation Engine` like this: 
+Optionally, during initialization, you can also set `language`, `overWrites` and `Translation Engine` like this: 
 
 ```kotlin
     DynamicResourceApi.init()
@@ -87,7 +87,8 @@ Optionally, you can also set `language`, `overWrites` and `Translation Engine` l
         .setLanguage(Locale("es"))
         .setEngine(UppercaseTranslationEngine())
 ```
-   
+Setting the language here will override your phone's setting for the target language.
+
 Then retrieve the API anywhere in your program:
    ```kotlin
    val api = DynamicResourceApi.getApi()
@@ -131,10 +132,10 @@ This method is better suitable if you like to use [Dagger/Hilt](https://develope
 API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslator/api/org.avmedia.translateapi/-dynamic-translator/index.html):
 
 ## Fine-Tuning Translations
-Override translations in one of the following tow ways:
+You can override specific translations in one of the following tow ways:
 
 1. **Language-Specific `strings.xml` File**  
-   Add a partial `strings.xml` file for specific languages with only the strings you want to override.
+   Add a partial `strings.xml` file for specific languages with only the strings you like to override.
 
    Example for Spanish (`values-es/strings.xml`):
    ```xml
@@ -142,10 +143,10 @@ Override translations in one of the following tow ways:
        <string name="title_time">Hora</string>
    </resources>
    ```
-   The string with the ID `R.string.title_time` will always be translated as `Hora`, regardless of the automatic translation.
+   The string with the Id `R.string.title_time` will always be translated as `Hora`, regardless of the automatic translation.
 
-2. **Providing Overrides in Code**  
-   Use the `overWrites` parameter during initialization:
+2. **Providing Overwrites in Code**  
+   Call the `setOverwrites()` method during initialization:
 
 ```kotlin
       DynamicResourceApi.init()
@@ -183,9 +184,9 @@ class UppercaseTranslationEngine : ITranslationEngine {
 To use your custom engine, register it during initialization:
 
 ```kotlin
-DynamicResourceApi.init(engine = UppercaseTranslationEngine())
+DynamicResourceApi.init().setEngine(UppercaseTranslationEngine())
 ```
-After registration, all translations will use the `UppercaseTranslationEngine`.
+After that, all translations will use the `UppercaseTranslationEngine`.
 
 ## Performance
 When loading the app for the first time, if no `strings.xml` file is available for the phone's default language, 
@@ -197,7 +198,7 @@ We are exploring ways to further improve the initial load performance:
 1. Use asynchronous functions like `stringResourceAsync()` to perform translations in the background and update the screen once the translation is complete. 
 However, this approach requires more code changes in the app and is not recommended at this time.
 
-2. Perform a bulk translation at app startup and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
+2. Perform a bulk translation app loads and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
 the translation library does not support bulk translations, but we are looking to add this feature.
 
 ## Credits
@@ -208,4 +209,4 @@ the translation library does not support bulk translations, but we are looking t
 This is using an **unofficial** Google API. This may cease to work at any point in time, and you should be prepared to use a different translation engine if needed.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+This project is licensed under the MIT License.
