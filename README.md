@@ -159,10 +159,13 @@ Override translations in one of the following tow ways:
 
 In addition, the API provides two functions to add overwrites from anywhere in your code:
 
-```
-    fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>)
-    
-    fun addOverwrite(overWrite: Pair<ResourceLocaleKey, String>)
+```kotlin
+    app.addOverwrites(arrayOf(
+        ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+        ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+    ))
+
+    app.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola")
 ```
 
 ## Adding a Custom Translation Engine
