@@ -2,10 +2,12 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("org.jetbrains.dokka") version("1.9.20")
-    id("maven-publish")
+
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
+
     namespace = "org.avmedia.translateapi"
 
     compileSdk = 34
@@ -33,12 +35,13 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.translator)
-    implementation (libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

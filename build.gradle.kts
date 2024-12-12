@@ -5,11 +5,5 @@ plugins {
     alias(libs.plugins.android.library) apply false
 }
 
-buildscript {
-    dependencies {
-        // classpath (libs.gradle)
-        classpath ("com.android.tools.build:gradle:8.5.2")
-
-        classpath(libs.kotlin.gradle.plugin)
-    }
-}
+group = "org.avmedia"
+version = "1.0.0"
