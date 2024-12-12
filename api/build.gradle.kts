@@ -4,10 +4,10 @@ plugins {
     id("org.jetbrains.dokka") version("1.9.20")
 
     kotlin("plugin.serialization") version "1.9.0"
+    id("maven-publish")
 }
 
 android {
-
     namespace = "org.avmedia.translateapi"
 
     compileSdk = 34
