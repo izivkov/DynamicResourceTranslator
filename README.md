@@ -211,4 +211,4 @@ the translation library does not support bulk translations, but we are looking t
 This is using an **unofficial** Google API. This may cease to work at any point in time, and you should be prepared to use a different translation engine if needed.
 
 ## License
-This project is licensed under the MIT License.
+This project is licensed under the [LICENSE](LICENSE).
