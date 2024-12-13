@@ -134,7 +134,7 @@ This method is better suitable if you like to use [Dagger / Hilt](https://develo
 API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslator/api/org.avmedia.translateapi/-dynamic-translator/index.html):
 
 ## Fine-Tuning Translations
-You can override specific translations in one of the following tow ways:
+You can override specific translations in one of the following two ways:
 
 1. **Language-Specific `strings.xml` File**  
    Add a partial `strings.xml` file for specific languages with only the strings you like to overwrite.
