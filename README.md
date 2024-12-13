@@ -26,7 +26,7 @@ res/
 ## Features
 
 - Dynamically translates string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
-- Respect existing language-specific `string.xml`, if resent.
+- Respect existing language-specific `string.xml`.
 - Supports fine-tuning of translation when automatic translations should be corrected ot shortened.
 - Allows multiple language translations on the same page.
 - Provides a pluggable translation engine architecture.
@@ -35,7 +35,7 @@ res/
 
 The library intercepts calls to `getString()` and `stringResource()`, which read from `strings.xml` resource files. 
 It then uses a Google translation service to translate the strings based on the language set in the phone's settings. 
-Translated values are stored in local storage for reuse and better performance.
+Translated values are stored in [local storage](https://developer.android.com/training/data-storage) for reuse and better performance.
 
 ## Prerequisites
 Your app must have Internet access, at least the first time your app runs, to perform the initial translations.
@@ -58,8 +58,10 @@ dependencyResolutionManagement {
       maven { url 'https://jitpack.io' }
    }
 }
-
+```
 Add the following to your **build.gradle** file:
+
+```groovy
 dependencies {
    implementation 'com.github.izivkov:DynamicResourceTranslator:Tag'
 }
@@ -72,7 +74,7 @@ dependencies {
 #### Method 1: Use Singleton Object
 The easiest way to get access to the API is through a Singleton object `DynamicResourceApi`, which wraps the class containing the API methods.
 
-Initialize `DynamicResourceApi` once, typically in `MainActivity` or your application class:
+Initialize `DynamicResourceApi` once, typically in `MainActivity` or your `Application` class:
    ```kotlin
    DynamicResourceApi.init()
    ```
@@ -94,7 +96,7 @@ Then retrieve the API anywhere in your program:
    val api = DynamicResourceApi.getApi()
 ```
 
-#### Method 2: Create the API dynamically
+#### Method 2: Create the API directly
 
 ```kotlin
     val api = DynamicTranslator()
@@ -107,7 +109,7 @@ Then retrieve the API anywhere in your program:
            )
         )
 ```
-This method is better suitable if you like to use [Dagger/Hilt](https://developer.android.com/training/dependency-injection/hilt-android) and inject the API in you code.
+This method is better suitable if you like to use [Dagger / Hilt](https://developer.android.com/training/dependency-injection/hilt-android) and inject the API in you code.
 
 ### Using it in your code
 **Replace** `context.getString` calls with `api.getString`:
@@ -125,7 +127,7 @@ This method is better suitable if you like to use [Dagger/Hilt](https://develope
    val text = stringResource(id = R.string.hello_world)
 
    // After:
-   val text = api.stringResource(context = LocalContext.current, id = R.string.hello_world)
+   val text = api.stringResource(LocalContext.current, R.string.hello_world)
    ``` 
 
 ## Documentation
@@ -135,7 +137,7 @@ API documentation can ge found [here](https://izivkov.github.io/DynamicResourceT
 You can override specific translations in one of the following tow ways:
 
 1. **Language-Specific `strings.xml` File**  
-   Add a partial `strings.xml` file for specific languages with only the strings you like to override.
+   Add a partial `strings.xml` file for specific languages with only the strings you like to overwrite.
 
    Example for Spanish (`values-es/strings.xml`):
    ```xml
@@ -170,7 +172,7 @@ In addition, the API provides two functions to add overwrites from anywhere in y
 ```
 
 ## Adding a Custom Translation Engine
-By default, the library uses the built-in `BushTranslationEngine`, based on [this library](https://github.com/therealbush/translator) library.
+By default, the library uses the built-in `BushTranslationEngine`, based on [this](https://github.com/therealbush/translator) library.
 You can provide your own translation engine for customized translations.
 For the purposes of illustration, here’s a trivial engine that converts all strings to uppercase.
 
@@ -189,7 +191,7 @@ DynamicResourceApi.init().setEngine(UppercaseTranslationEngine())
 After that, all translations will use the `UppercaseTranslationEngine`.
 
 ## Performance
-When loading the app for the first time, if no `strings.xml` file is available for the phone's default language, 
+When loading the app for the first time, if no `strings.xml` file is found for the phone's default language, 
 there may be a delay per screen as the content is being translated. Subsequent access to the same screen, even after 
 restarting the app, will load at normal speed.
 
@@ -198,7 +200,7 @@ We are exploring ways to further improve the initial load performance:
 1. Use asynchronous functions like `stringResourceAsync()` to perform translations in the background and update the screen once the translation is complete. 
 However, this approach requires more code changes in the app and is not recommended at this time.
 
-2. Perform a bulk translation app loads and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
+2. Perform a bulk translation app as loads, and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
 the translation library does not support bulk translations, but we are looking to add this feature.
 
 ## Credits
