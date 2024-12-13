@@ -87,7 +87,7 @@ Optionally, during initialization, you can also set `language`, `overWrites` and
             ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
         ))
         .setLanguage(Locale("es"))
-        .setEngine(UppercaseTranslationEngine())
+        .setEngine(BushTranslationEngine())
 ```
 Setting the language here will override your phone's setting for the target language.
 
