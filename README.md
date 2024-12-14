@@ -21,7 +21,7 @@ res/
 ├── values/
 │   └── strings.xml
 ```
-> **Note:** Language-specific directories (e.g., `values-es/`, `values-fr/`) are optional. If they exist, the API will respect them.
+> **Note:** Language-specific directories (e.g., `values-es/`, `values-fr/`) are optional. If they exist, the API will use them.
 
 ## Features
 
