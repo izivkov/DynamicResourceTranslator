@@ -148,11 +148,11 @@ class DynamicTranslator (
         resId: Int,
         formatArgs: Array<out Any>,
         locale: Locale?,
-        translator: (String, Locale) -> T
+        translateFunc: (String, Locale) -> T
     ): T {
         val curLocale = locale ?: this.locale
         val origString = readStringFromDefaultFile(context, resId, formatArgs)
-        return translator(origString, curLocale)
+        return translateFunc(origString, curLocale)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -161,7 +161,7 @@ class DynamicTranslator (
         id: Int,
         formatArgs: Array<out Any>,
         locale: Locale?,
-        translator: (String, Locale) -> T
+        translateFunc: (String, Locale) -> T
     ): T {
         val curLocale = locale ?: this.locale
         val resourceKey = ResourceLocaleKey(id, curLocale)
@@ -193,7 +193,7 @@ class DynamicTranslator (
             return formattedString as T
         }
 
-        val translatedValue = translator(formattedString, curLocale)
+        val translatedValue = translateFunc(formattedString, curLocale)
 
         LocalDataStorage.putResource(context, resourceKey, translatedValue.toString())
         return translatedValue
