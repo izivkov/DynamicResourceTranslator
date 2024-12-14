@@ -200,7 +200,7 @@ We are exploring ways to further improve the initial load performance:
 1. Use asynchronous functions like `stringResourceAsync()` to perform translations in the background and update the screen once the translation is complete. 
 However, this approach requires more code changes in the app and is not recommended at this time.
 
-2. Perform a bulk translation app as loads, and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
+2. Perform a bulk translation as the app loads, and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
 the translation library does not support bulk translations, but we are looking to add this feature.
 
 ## Credits
