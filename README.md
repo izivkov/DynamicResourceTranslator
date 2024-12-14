@@ -1,4 +1,4 @@
-# DynamicResourceTranslator
+# Dynamic Resource Translator
 
 DynamicResourceTranslator is an Android library that simplifies internationalization for your app. You only need to create 
 a single `strings.xml` file in your native language (not necessarily English), and the library will 
