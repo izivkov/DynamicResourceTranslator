@@ -204,7 +204,7 @@ However, this approach requires more code changes in the app and is not recommen
 the translation library does not support bulk translations, but we are looking to add this feature.
 
 ## Who is using it
-The [Casio GShock Smart Sync](https://github.com/izivkov/CasioGShockSmartSync) app is an open-source alternative the Casio App. It uses this
+The [Casio GShock Smart Sync](https://github.com/izivkov/CasioGShockSmartSync) app is an open-source alternative to the Casio app. It uses this
 library to provide localisation to GShock users around the World.
 
 If you like us to list your project which uses this library, contact us and we will include a link.
