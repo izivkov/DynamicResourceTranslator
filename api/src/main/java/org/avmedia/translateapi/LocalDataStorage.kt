@@ -36,7 +36,6 @@ object LocalDataStorage {
         put(context, key.hashCode(), value)
     }
 
-
     private fun get(context: Context, key: Int, defaultValue: String? = null): String? {
         var value: String?
         runBlocking {
@@ -50,15 +49,11 @@ object LocalDataStorage {
         return get (context, key.hashCode(), defaultValue)
     }
 
-    fun delete(context: Context, key: String) {
+    fun clear(context: Context) {
         scope.launch {
-            deleteAsync(context, key)
-        }
-    }
-
-    private suspend fun deleteAsync(context: Context, key: String) {
-        context.dataStore.edit { preferences ->
-            preferences.remove(stringPreferencesKey(key))
+            context.dataStore.edit { preferences ->
+                preferences.clear()
+            }
         }
     }
 }
