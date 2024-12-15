@@ -195,16 +195,23 @@ Suppose you want to convert your translated text to uppercase after translating.
 
 ```kotlin
 // Using the Singleton object:
-DynamicResourceApi.init().setEngines(listOf(BushTranslationEngine(), UppercaseTranslationEngine()))
+DynamicResourceApi.init().setEngines(
+    listOf(
+        BushTranslationEngine(), 
+        UppercaseTranslationEngine()))
 
 // Or directly in the dynamic translator:
 DynamicTranslator().init()
-    .setEngines(listOf(BushTranslationEngine(), UppercaseTranslationEngine()))
+    .setEngines(
+        listOf(
+            BushTranslationEngine(), 
+            UppercaseTranslationEngine()))
 ```
-The output of `BushTranslationEngine` will be fed to `UppercaseTranslationEngine` for further transformation. 
-Note that values in the `Overwrites` list are not translated and are passed as they are.
+The output of `BushTranslationEngine` will be fed to `UppercaseTranslationEngine` for further transformation.
 
-Using this method, you can perform all sorts of transformations on the text. For example, if you want to remove 
+*Note that values in the `Overwrites` list are not translated and are passed as they are.*
+
+Adding translation engines, you can perform all sorts of transformations on the text. For example, if you want to remove 
 offensive words or expressions for certain languages, you can write an engine to do that.
 
 ## Performance
