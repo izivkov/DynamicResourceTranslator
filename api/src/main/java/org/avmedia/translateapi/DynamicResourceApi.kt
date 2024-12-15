@@ -31,6 +31,11 @@ object DynamicResourceApi {
         return this
     }
 
+    fun setEngines(engines: Collection<ITranslationEngine>): DynamicResourceApi {
+        getApi().setEngines(engines)
+        return this
+    }
+
     fun getApi(): DynamicTranslator {
         require(::translator.isInitialized) {"DynamicResourceApi not initialized. Call init() first."}
         return translator

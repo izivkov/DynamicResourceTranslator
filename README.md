@@ -190,6 +190,23 @@ DynamicResourceApi.init().setEngine(UppercaseTranslationEngine())
 ```
 After that, all translations will use the `UppercaseTranslationEngine`.
 
+## Cascading Engines
+Suppose you want to convert your translated text to uppercase after translating. You can achieve this by cascading (or chaining) two or more engines like this:
+
+```kotlin
+// Using the Singleton object:
+DynamicResourceApi.init().setEngines(listOf(BushTranslationEngine(), UppercaseTranslationEngine()))
+
+// Or directly in the dynamic translator:
+DynamicTranslator().init()
+    .setEngines(listOf(BushTranslationEngine(), UppercaseTranslationEngine()))
+```
+The output of `BushTranslationEngine` will be fed to `UppercaseTranslationEngine` for further transformation. 
+Note that values in the `Overwrites` list are not translated and are passed as they are.
+
+Using this method, you can perform all sorts of transformations on the text. For example, if you want to remove 
+offensive words or expressions for certain languages, you can write an engine to do that.
+
 ## Performance
 When loading the app for the first time, if no `strings.xml` file is found for the phone's default language, 
 there may be a delay per screen as the content is being translated. Subsequent access to the same screen, even after 

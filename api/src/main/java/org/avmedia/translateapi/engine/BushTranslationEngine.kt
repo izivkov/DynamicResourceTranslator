@@ -10,10 +10,6 @@ class BushTranslationEngine (
 
     private val translator: Translator = Translator()
 
-    override fun isInline(): Boolean {
-        return false
-    }
-
     override fun translate(
         text: String,
         target: Locale,

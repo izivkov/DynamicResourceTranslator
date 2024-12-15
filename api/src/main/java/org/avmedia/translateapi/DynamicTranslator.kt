@@ -7,12 +7,11 @@ import org.avmedia.translateapi.engine.BushTranslationEngine
 import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
 
-class DynamicTranslator (
-) : IDynamicTranslator {
+class DynamicTranslator : IDynamicTranslator {
     override var locale = Locale.getDefault()
     override val translationOverwrites = TranslationOverwrites()
-    override val networkConnectionChecker = NetworkConnectionChecker ()
-    private var translator: ITranslationEngine = BushTranslationEngine()
+    override val networkConnectionChecker = NetworkConnectionChecker()
+    private var translatorEngines: MutableList<ITranslationEngine> = mutableListOf(BushTranslationEngine())
 
     override fun init(): DynamicTranslator {
         // Do initialization here...
@@ -25,7 +24,14 @@ class DynamicTranslator (
     }
 
     override fun setEngine(engine: ITranslationEngine): DynamicTranslator {
-        this.translator = engine
+        translatorEngines.clear()
+        translatorEngines.add(engine)
+        return this
+    }
+
+    override fun setEngines(engines: Collection<ITranslationEngine>): DynamicTranslator {
+        translatorEngines.clear()
+        translatorEngines.addAll(engines)
         return this
     }
 
@@ -62,21 +68,12 @@ class DynamicTranslator (
         vararg formatArgs: Any,
         locale: Locale?,
     ): String {
-        return if (translator.isInline()) {
-            computeValueInline(
-                context = context,
-                resId = id,
-                formatArgs = formatArgs,
-                locale = locale
-            ) { text: String, language: Locale -> translate(text, language) }
-        } else {
-            computeValue (
-                context = context,
-                id = id,
-                formatArgs = formatArgs,
-                locale = locale
-            ) { text: String, language: Locale -> translate(text, language) }
-        }
+        return computeValue(
+            context = context,
+            id = id,
+            formatArgs = formatArgs,
+            locale = locale
+        ) { text: String, language: Locale -> translate(text, language) }
     }
 
     /**
@@ -98,21 +95,12 @@ class DynamicTranslator (
         vararg formatArgs: Any,
         locale: Locale?
     ): String {
-        return if (translator.isInline()) {
-            computeValueInline(
-                context = context,
-                resId = id,
-                formatArgs = formatArgs,
-                locale = locale
-            ) { text: String, language: Locale -> translate(text, language) }
-        } else {
-            computeValue(
-                context = context,
-                id = id,
-                formatArgs = formatArgs,
-                locale = locale
-            ) { text: String, language: Locale -> translate(text, language) }
-        }
+        return computeValue(
+            context = context,
+            id = id,
+            formatArgs = formatArgs,
+            locale = locale
+        ) { text: String, language: Locale -> translate(text, language) }
     }
 
     /**
@@ -124,87 +112,96 @@ class DynamicTranslator (
         vararg formatArgs: Any,
         locale: Locale?
     ): String {
-        return if (translator.isInline()) {
-            computeValueInline(
-                context = context,
-                resId = id,
-                formatArgs = formatArgs,
-                locale = locale
-            ) { text: String, language: Locale -> translateAsync(text, language) }
-        } else {
-            computeValue(
-                context = context,
-                id = id,
-                formatArgs = formatArgs,
-                locale = locale
-            ) { text: String, language: Locale -> translateAsync(text, language) }
+        return computeValue(
+            context = context,
+            id = id,
+            formatArgs = formatArgs,
+            locale = locale
+        ) { text: String, language: Locale -> translateAsync(text, language) }
+    }
+
+    private fun translate(inText: String, locale: Locale): String {
+        var currentText = inText
+        for (engine in translatorEngines) {
+            val result = engine.translate(currentText, locale)
+            if (result.isNotBlank()) {
+                currentText = result
+            }
         }
+        return currentText
     }
 
-    // This function is used by translators which do all translation inline,
-    // i.e. do not look at any language-specific resource files and do not use external translators.
-    private inline fun <T> computeValueInline(
-        context: Context,
-        resId: Int,
-        formatArgs: Array<out Any>,
-        locale: Locale?,
-        translateFunc: (String, Locale) -> T
-    ): T {
-        val curLocale = locale ?: this.locale
-        val origString = readStringFromDefaultFile(context, resId, formatArgs)
-        return translateFunc(origString, curLocale)
+    private suspend fun translateAsync(inText: String, locale: Locale): String {
+        var currentText = inText
+        for (engine in translatorEngines) {
+            val result = engine.translate(currentText, locale)
+            if (result.isNotBlank()) {
+                currentText = result
+            }
+        }
+        return currentText
     }
 
-    @Suppress("UNCHECKED_CAST")
     private inline fun <T> computeValue(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
         locale: Locale?,
         translateFunc: (String, Locale) -> T
-    ): T {
+    ): String {
         val curLocale = locale ?: this.locale
-        val resourceKey = ResourceLocaleKey(id, curLocale)
+        val resourceLocaleKey = ResourceLocaleKey(id, curLocale)
 
-        val language = curLocale.language.lowercase()
-        require(isValidLanguageCode(language)) { return "Invalid Language code [${language}] provided!" as T }
+        val preProcessedResult =
+            preProcess(context, id, formatArgs, curLocale, resourceLocaleKey)
 
-        // check if string in the overwritten table
-        val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, curLocale)]
+        if (preProcessedResult.needsFurtherTranslation) {
+            val translatedValue = translateFunc(preProcessedResult.preProcessedString, curLocale)
+            postProcess(context, translatedValue as String, resourceLocaleKey)
+        }
+
+        return preProcessedResult.preProcessedString
+    }
+
+    private fun preProcess(
+        context: Context,
+        id: Int,
+        formatArgs: Array<out Any>,
+        locale: Locale,
+        resourceLocaleKey: ResourceLocaleKey
+    ): PreprocessResult {
+        val language = locale.language.lowercase()
+        require(isValidLanguageCode(language)) { return PreprocessResult("Invalid Language code [${language}] provided!", false) }
+
+        val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, locale)]
         if (overWrittenValue != null) {
-            return String.format(overWrittenValue, *formatArgs) as T
+            return PreprocessResult(String.format(overWrittenValue, *formatArgs), false)
         }
 
-        // try to get from local storage.
-        val storedValue = LocalDataStorage.getResource(context, resourceKey)
+        val storedValue = LocalDataStorage.getResource(context, resourceLocaleKey)
         if (storedValue != null) {
-            return storedValue as T
+            return PreprocessResult(storedValue, false)
         }
 
-        val formattedString = getStringByLocal(context, id, formatArgs, language)
+        val resourceString = getStringByLocal(context, id, formatArgs, language)
 
-        // if the value exists in the strings.xml for this locale, just return it without translation
-        if (isResourceAvailableForLocale(context, id, formatArgs, curLocale)) {
-            return formattedString as T
+        if (isResourceAvailableForLocale(context, id, formatArgs, locale)) {
+            return PreprocessResult(resourceString, false)
         }
 
-        // If we do not have network connection, do not try to translate, return the original string.
         if (!networkConnectionChecker.isConnected(context)) {
-            return formattedString as T
+            return PreprocessResult(resourceString, false)
         }
 
-        val translatedValue = translateFunc(formattedString, curLocale)
-
-        LocalDataStorage.putResource(context, resourceKey, translatedValue.toString())
-        return translatedValue
+        return PreprocessResult(resourceString, true)
     }
 
-    private fun translate(inText: String, locale: Locale): String {
-        return translator.translate(inText, locale)
-    }
-
-    private suspend fun translateAsync(inText: String, locale: Locale): String {
-        return translator.translateAsync(inText, locale)
+    private fun postProcess(
+        context: Context,
+        translatedValue: String,
+        resourceLocaleKey: ResourceLocaleKey
+    ) {
+        LocalDataStorage.putResource(context, resourceLocaleKey, translatedValue.toString())
     }
 
     private fun isResourceAvailableForLocale(
@@ -239,7 +236,6 @@ class DynamicTranslator (
         return getStringByLocal(context, id, formatArgs, Locale("kv").language)
     }
 
-    @SuppressLint
     private fun getStringByLocal(
         context: Context,
         id: Int,
@@ -247,7 +243,7 @@ class DynamicTranslator (
         locale: String?
     ): String {
         val configuration = Configuration(context.resources.configuration)
-        configuration.setLocale(/* loc = */ locale?.let { Locale(it) })
+        configuration.setLocale(locale?.let { Locale(it) })
         return context.createConfigurationContext(configuration).resources.getString(
             id,
             *formatArgs
@@ -275,4 +271,6 @@ class DynamicTranslator (
         )
         return input in languageCodes
     }
+
+    data class PreprocessResult(val preProcessedString: String, val needsFurtherTranslation: Boolean)
 }
