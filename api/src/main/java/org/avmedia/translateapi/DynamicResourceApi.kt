@@ -31,8 +31,13 @@ object DynamicResourceApi {
         return this
     }
 
-    fun setEngines(engines: Collection<ITranslationEngine>): DynamicResourceApi {
-        getApi().setEngines(engines)
+    fun addEngines(engines: Collection<ITranslationEngine>): DynamicResourceApi {
+        getApi().addEngines(engines)
+        return this
+    }
+
+    fun addEngine(engine: ITranslationEngine): DynamicResourceApi {
+        getApi().addEngine(engine)
         return this
     }
 

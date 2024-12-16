@@ -1,6 +1,5 @@
 package org.avmedia.translateapi
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import org.avmedia.translateapi.engine.BushTranslationEngine
@@ -11,7 +10,8 @@ class DynamicTranslator : IDynamicTranslator {
     override var locale = Locale.getDefault()
     override val translationOverwrites = TranslationOverwrites()
     override val networkConnectionChecker = NetworkConnectionChecker()
-    private var translatorEngines: MutableList<ITranslationEngine> = mutableListOf(BushTranslationEngine())
+    private var translatorEngines: MutableList<ITranslationEngine> =
+        mutableListOf(BushTranslationEngine())
 
     override fun init(): DynamicTranslator {
         // Do initialization here...
@@ -29,8 +29,12 @@ class DynamicTranslator : IDynamicTranslator {
         return this
     }
 
-    override fun setEngines(engines: Collection<ITranslationEngine>): DynamicTranslator {
-        translatorEngines.clear()
+    override fun addEngine(engine: ITranslationEngine): DynamicTranslator {
+        translatorEngines.add(engine)
+        return this
+    }
+
+    override fun addEngines(engines: Collection<ITranslationEngine>): DynamicTranslator {
         translatorEngines.addAll(engines)
         return this
     }
@@ -122,7 +126,7 @@ class DynamicTranslator : IDynamicTranslator {
 
     private fun translate(inText: String, locale: Locale): String {
         var currentText = inText
-        for (engine in translatorEngines) {
+        for (engine in translatorEngines.filter { it.isEnabled() }) {
             val result = engine.translate(currentText, locale)
             if (result.isNotBlank()) {
                 currentText = result
@@ -133,7 +137,7 @@ class DynamicTranslator : IDynamicTranslator {
 
     private suspend fun translateAsync(inText: String, locale: Locale): String {
         var currentText = inText
-        for (engine in translatorEngines) {
+        for (engine in translatorEngines.filter { it.isEnabled() }) {
             val result = engine.translate(currentText, locale)
             if (result.isNotBlank()) {
                 currentText = result
@@ -152,13 +156,17 @@ class DynamicTranslator : IDynamicTranslator {
         val curLocale = locale ?: this.locale
         val resourceLocaleKey = ResourceLocaleKey(id, curLocale)
 
-        val preProcessedResult =
-            preProcess(context, id, formatArgs, curLocale, resourceLocaleKey)
+        val preProcessedResult = preProcess(context, id, formatArgs, curLocale, resourceLocaleKey)
 
-        if (preProcessedResult.needsFurtherTranslation) {
-            val translatedValue = translateFunc(preProcessedResult.preProcessedString, curLocale)
-            postProcess(context, translatedValue as String, resourceLocaleKey)
+        // enable/disable translation as needed
+        for (engine in translatorEngines) {
+            if (engine is BushTranslationEngine) {
+                engine.setEnabled(preProcessedResult.needsFurtherTranslation)
+            }
         }
+
+        val translatedValue = translateFunc(preProcessedResult.preProcessedString, curLocale)
+        postProcess(context, translatedValue as String, resourceLocaleKey)
 
         return preProcessedResult.preProcessedString
     }
@@ -171,7 +179,12 @@ class DynamicTranslator : IDynamicTranslator {
         resourceLocaleKey: ResourceLocaleKey
     ): PreprocessResult {
         val language = locale.language.lowercase()
-        require(isValidLanguageCode(language)) { return PreprocessResult("Invalid Language code [${language}] provided!", false) }
+        require(isValidLanguageCode(language)) {
+            return PreprocessResult(
+                "Invalid Language code [${language}] provided!",
+                false
+            )
+        }
 
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, locale)]
         if (overWrittenValue != null) {
@@ -272,5 +285,8 @@ class DynamicTranslator : IDynamicTranslator {
         return input in languageCodes
     }
 
-    data class PreprocessResult(val preProcessedString: String, val needsFurtherTranslation: Boolean)
+    data class PreprocessResult(
+        val preProcessedString: String,
+        val needsFurtherTranslation: Boolean
+    )
 }

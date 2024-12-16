@@ -5,6 +5,9 @@ import java.util.Locale
 
 interface ITranslationEngine {
 
+    fun isEnabled (): Boolean
+    fun setEnabled (enabled: Boolean)
+
     fun translate(
         text: String,
         target: Locale,
