@@ -1,4 +1,4 @@
-package org.avmedia.dynamicresourcetranslator.ui.theme
+package org.avmedia.dynamicResourceTranslator.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

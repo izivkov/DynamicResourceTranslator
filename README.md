@@ -86,10 +86,11 @@ Optionally, during initialization, you can also set `language`, `overWrites` and
             ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
             ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
         ))
-        .setLanguage(Locale("es"))
+        .setAppLanguage(Locale("es"))
         .setEngine(BushTranslationEngine())
 ```
-Setting the language here will override your phone's setting for the target language.
+Setting the `appLanguage` tells the library that your default `strings.xml` contains string in the language. In this 
+case, we tell the app that the strings are in Spanish. For more information, see [Application-language-vs-Default-Language](#application-language-vs-default-language).
 
 Then retrieve the API anywhere in your program:
    ```kotlin
@@ -101,7 +102,7 @@ Then retrieve the API anywhere in your program:
 ```kotlin
     val api = DynamicTranslator()
         .init ()            
-        .setLanguage(Locale("es"))      // optional
+        .setAppLanguage(Locale("es"))      // optional
         .setOverwrites(                 // optional
            arrayOf(
               ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
@@ -129,6 +130,19 @@ This method is better suitable if you like to use [Dagger / Hilt](https://develo
    // After:
    val text = api.stringResource(LocalContext.current, R.string.hello_world)
    ``` 
+### Application Language vs. Default Language
+
+Suppose your app is designed for the local market in Germany, and you only have a default `strings.xml` file containing German strings. 
+In this case, the **Application Language** is German. To avoid unnecessary translation, you should call:
+
+```kotlin
+setAppLanguage(Locale("de"))
+```  
+
+during library initialization. If your `strings.xml` file is in English, there is no need to call this function.
+
+On the other hand, the **Default Language** refers to the language currently set on the user's device. For example, if a user in Spain 
+has their device set to Spanish, the default system language will be Spanish. This is the language into which strings should be translated.
 
 ## Documentation
 API documentation can ge found [here](https://izivkov.github.io/DynamicResourceTranslator/api/org.avmedia.translateapi/-dynamic-translator/index.html):
@@ -170,6 +184,27 @@ In addition, the API provides two functions to add overwrites from anywhere in y
 
     api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola")
 ```
+
+### When is Run-Time Translation Initiated?
+
+Run-time translation is initiated when the following conditions are met:
+
+1. **No Overwrite Exists:**  
+   If an `overWrite` value exists for this string and language, it will be used directly without further translation.
+
+2. **Not Cached in Local Storage:**  
+   If the string is already cached in local storage, the cached value will be used, bypassing translation.
+
+3. **Missing in Resource Files:**  
+   If the string ID cannot be found in the device's resource files (e.g., `strings.xml` for the current language), translation will proceed.
+
+4. **Network Connection Available:**  
+   A network connection is required to access translation services.
+
+When all these conditions are met, the library translates the string and stores the result in the cache for future use.
+
+This applies to any translation engine, even if the translation logic is trivial. Additionally, 
+for multiple chained engines, either all will execute if the conditions are satisfied, or none will execute.
 
 ## Adding a Custom Translation Engine
 By default, the library uses the built-in `BushTranslationEngine`, based on [this](https://github.com/therealbush/translator) library.

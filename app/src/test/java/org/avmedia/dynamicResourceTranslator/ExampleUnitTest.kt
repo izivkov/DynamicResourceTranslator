@@ -1,4 +1,4 @@
-package org.avmedia.dynamicresourcetranslator
+package org.avmedia.dynamicResourceTranslator
 
 import org.junit.Test
 

@@ -10,10 +10,6 @@ class BushTranslationEngine (
 
     private val translator: Translator = Translator()
 
-    private var enabled = true
-    override fun isEnabled(): Boolean = enabled
-    override fun setEnabled(enabled: Boolean) {this.enabled = enabled}
-
     override fun translate(
         text: String,
         target: Locale,

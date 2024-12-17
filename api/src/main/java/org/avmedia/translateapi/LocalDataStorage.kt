@@ -49,11 +49,15 @@ object LocalDataStorage {
         return get (context, key.hashCode(), defaultValue)
     }
 
-    fun clear(context: Context) {
+    fun delete(context: Context, key: String) {
         scope.launch {
-            context.dataStore.edit { preferences ->
-                preferences.clear()
-            }
+            deleteAsync(context, key)
+        }
+    }
+
+    private suspend fun deleteAsync(context: Context, key: String) {
+        context.dataStore.edit { preferences ->
+            preferences.remove(stringPreferencesKey(key))
         }
     }
 }

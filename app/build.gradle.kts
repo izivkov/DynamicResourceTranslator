@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "org.avmedia.dynamicresourcetranslator"
+    namespace = "org.avmedia.dynamicResourceTranslator"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "org.avmedia.dynamicresourcetranslator"
+        applicationId = "org.avmedia.dynamicResourceTranslator"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

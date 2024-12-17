@@ -1,4 +1,4 @@
-package org.avmedia.dynamicresourcetranslator.ui.theme
+package org.avmedia.dynamicResourceTranslator.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

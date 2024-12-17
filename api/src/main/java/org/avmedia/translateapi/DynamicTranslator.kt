@@ -7,35 +7,23 @@ import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
 
 class DynamicTranslator : IDynamicTranslator {
-    override var locale = Locale.getDefault()
+    override var appLocale = Locale("en")
     override val translationOverwrites = TranslationOverwrites()
     override val networkConnectionChecker = NetworkConnectionChecker()
-    private var translatorEngines: MutableList<ITranslationEngine> =
-        mutableListOf(BushTranslationEngine())
+    private var translatorEngine: ITranslationEngine = BushTranslationEngine()
 
     override fun init(): DynamicTranslator {
         // Do initialization here...
         return this
     }
 
-    override fun setLanguage(locale: Locale): DynamicTranslator {
-        this.locale = locale
+    override fun setAppLocale(locale: Locale): DynamicTranslator {
+        this.appLocale = locale
         return this
     }
 
     override fun setEngine(engine: ITranslationEngine): DynamicTranslator {
-        translatorEngines.clear()
-        translatorEngines.add(engine)
-        return this
-    }
-
-    override fun addEngine(engine: ITranslationEngine): DynamicTranslator {
-        translatorEngines.add(engine)
-        return this
-    }
-
-    override fun addEngines(engines: Collection<ITranslationEngine>): DynamicTranslator {
-        translatorEngines.addAll(engines)
+        translatorEngine = engine
         return this
     }
 
@@ -60,9 +48,8 @@ class DynamicTranslator : IDynamicTranslator {
      * getString(context, R.strings.name)
      * ```
      * @param context   The context. Could be Application Context.
-     * @param resId The resource ID of the string to translate.
+     * @param id The resource ID of the string to translate.
      * @param formatArgs optional parameters if your resource string takes parameters like "Hello $1%s"
-     * @param locale optional parameters if you like to translate into a specific language. If not provided, the default phone language will be used, set in Android System configuration.
      *
      * @return A [String] containing the translated text.
      */
@@ -70,13 +57,11 @@ class DynamicTranslator : IDynamicTranslator {
         context: Context,
         id: Int,
         vararg formatArgs: Any,
-        locale: Locale?,
     ): String {
         return computeValue(
             context = context,
             id = id,
             formatArgs = formatArgs,
-            locale = locale
         ) { text: String, language: Locale -> translate(text, language) }
     }
 
@@ -89,7 +74,6 @@ class DynamicTranslator : IDynamicTranslator {
      * @param context The context. Usually set to `LocalContext.current`
      * @param id The resource ID of the string to translate.
      * @param formatArgs optional parameters if your resource string takes parameters like "Hello $1%s"
-     * @param locale optional parameters if you like to translate into a specific language. If not provided, the default phone language will be used, set in Android System configuration.
      *
      * @return A [String] containing the translated text.
      */
@@ -97,13 +81,11 @@ class DynamicTranslator : IDynamicTranslator {
         context: Context,
         id: Int,
         vararg formatArgs: Any,
-        locale: Locale?
     ): String {
         return computeValue(
             context = context,
             id = id,
             formatArgs = formatArgs,
-            locale = locale
         ) { text: String, language: Locale -> translate(text, language) }
     }
 
@@ -114,60 +96,49 @@ class DynamicTranslator : IDynamicTranslator {
         context: Context,
         id: Int,
         vararg formatArgs: Any,
-        locale: Locale?
     ): String {
         return computeValue(
             context = context,
             id = id,
             formatArgs = formatArgs,
-            locale = locale
         ) { text: String, language: Locale -> translateAsync(text, language) }
     }
 
     private fun translate(inText: String, locale: Locale): String {
-        var currentText = inText
-        for (engine in translatorEngines.filter { it.isEnabled() }) {
-            val result = engine.translate(currentText, locale)
-            if (result.isNotBlank()) {
-                currentText = result
-            }
-        }
-        return currentText
+        val result = translatorEngine.translate(inText, Locale.getDefault())
+        println("Translated $inText -> $result")
+        return result
     }
 
     private suspend fun translateAsync(inText: String, locale: Locale): String {
-        var currentText = inText
-        for (engine in translatorEngines.filter { it.isEnabled() }) {
-            val result = engine.translate(currentText, locale)
-            if (result.isNotBlank()) {
-                currentText = result
-            }
-        }
-        return currentText
+        val result = translatorEngine.translate(inText, locale)
+        return result
     }
 
     private inline fun <T> computeValue(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
-        locale: Locale?,
         translateFunc: (String, Locale) -> T
     ): String {
-        val curLocale = locale ?: this.locale
-        val resourceLocaleKey = ResourceLocaleKey(id, curLocale)
+        // Create a key for identifying the resource in the desired locale
+        val resourceLocaleKey = ResourceLocaleKey(id, Locale.getDefault())
 
-        val preProcessedResult = preProcess(context, id, formatArgs, curLocale, resourceLocaleKey)
+        // Pre-process the input string with formatting arguments
+        val preProcessedResult = preProcess(context, id, formatArgs, resourceLocaleKey)
 
-        // enable/disable translation as needed
-        for (engine in translatorEngines) {
-            if (engine is BushTranslationEngine) {
-                engine.setEnabled(preProcessedResult.needsFurtherTranslation)
-            }
+        // If further translation is needed, apply the translation function
+        if (preProcessedResult.needsFurtherTranslation) {
+            val translatedValue = translateFunc(preProcessedResult.preProcessedString, Locale.getDefault())
+
+            // Post-process the translated result and store it for caching or reuse
+            postProcess(context, translatedValue.toString(), resourceLocaleKey)
+
+            // Return the translated string
+            return translatedValue.toString()
         }
 
-        val translatedValue = translateFunc(preProcessedResult.preProcessedString, curLocale)
-        postProcess(context, translatedValue as String, resourceLocaleKey)
-
+        // If no further translation is needed, return the pre-processed string
         return preProcessedResult.preProcessedString
     }
 
@@ -175,18 +146,12 @@ class DynamicTranslator : IDynamicTranslator {
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
-        locale: Locale,
         resourceLocaleKey: ResourceLocaleKey
     ): PreprocessResult {
-        val language = locale.language.lowercase()
-        require(isValidLanguageCode(language)) {
-            return PreprocessResult(
-                "Invalid Language code [${language}] provided!",
-                false
-            )
-        }
+        val defaultLocale = Locale.getDefault()
+        val language = defaultLocale.language.lowercase()
 
-        val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, locale)]
+        val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, defaultLocale)]
         if (overWrittenValue != null) {
             return PreprocessResult(String.format(overWrittenValue, *formatArgs), false)
         }
@@ -196,9 +161,9 @@ class DynamicTranslator : IDynamicTranslator {
             return PreprocessResult(storedValue, false)
         }
 
-        val resourceString = getStringByLocal(context, id, formatArgs, language)
+        val resourceString = context.getString(id, *formatArgs, language)
 
-        if (isResourceAvailableForLocale(context, id, formatArgs, locale)) {
+        if (isResourceAvailableForLocale(context, id, formatArgs)) {
             return PreprocessResult(resourceString, false)
         }
 
@@ -214,14 +179,13 @@ class DynamicTranslator : IDynamicTranslator {
         translatedValue: String,
         resourceLocaleKey: ResourceLocaleKey
     ) {
-        LocalDataStorage.putResource(context, resourceLocaleKey, translatedValue.toString())
+        LocalDataStorage.putResource(context, resourceLocaleKey, translatedValue)
     }
 
     private fun isResourceAvailableForLocale(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
-        locale: Locale,
     ): Boolean {
         /*
         We compare a string from the default string.xml with the target locale string,
@@ -229,10 +193,15 @@ class DynamicTranslator : IDynamicTranslator {
         there is no string.xml for it. This tess us if we should translate the string.
         */
 
-        val localStr = getStringByLocal(context, id, formatArgs, locale.language)
+        val defaultLocale = Locale.getDefault()
+        val defaultLanguage = defaultLocale.language
+        val appLanguage = appLocale.language
+
+        val localStr = getStringByLocal(context, id, formatArgs, defaultLanguage)
         val defaultStr = readStringFromDefaultFile(context, id, formatArgs)
 
         return localStr != defaultStr
+                || defaultLanguage == appLanguage
     }
 
     private fun readStringFromDefaultFile(
@@ -253,10 +222,10 @@ class DynamicTranslator : IDynamicTranslator {
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
-        locale: String?
+        locale: String
     ): String {
         val configuration = Configuration(context.resources.configuration)
-        configuration.setLocale(locale?.let { Locale(it) })
+        configuration.setLocale(Locale(locale))
         return context.createConfigurationContext(configuration).resources.getString(
             id,
             *formatArgs

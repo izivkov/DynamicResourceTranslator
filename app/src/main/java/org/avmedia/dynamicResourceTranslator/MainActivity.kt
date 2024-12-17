@@ -1,10 +1,9 @@
-package org.avmedia.dynamicresourcetranslator
+package org.avmedia.dynamicResourceTranslator
 
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import org.avmedia.dynamicresourcetranslator.ui.theme.DynamicResourceTranslatorTheme
+import org.avmedia.dynamicResourceTranslator.ui.theme.DynamicResourceTranslatorTheme
 import org.avmedia.translateapi.DynamicResourceApi
 import org.avmedia.translateapi.ResourceLocaleKey
 import org.avmedia.translateapi.engine.BushTranslationEngine
@@ -33,8 +32,9 @@ class MainActivity : ComponentActivity() {
         .setOverwrites(arrayOf(
             ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
             ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
-        )).setLanguage(Locale.getDefault())
-        .setEngine(BushTranslationEngine())
+        ))
+        .setAppLocale(Locale("bg"))
+        // .setEngine(UppercaseTranslationEngine())
         .getApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,46 +60,7 @@ class MainActivity : ComponentActivity() {
                             text = api.stringResource(
                                 context = LocalContext.current,
                                 id = R.string.async_string,
-                                "one", "two", "three", "four"
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
-                                .padding(start = 40.dp, end = 40.dp)
-                        )
-
-                        Text(
-                            text = api.stringResource(
-                                context = LocalContext.current,
-                                id = R.string.async_string,
-                                formatArgs = arrayOf("one", "two", "three"),
-                                locale = Locale("ja")
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
-                                .padding(start = 40.dp, end = 40.dp)
-                        )
-
-                        Text(
-                            text = api.stringResource(
-                                context = LocalContext.current,
-                                id = R.string.async_string,
-                                formatArgs = arrayOf("one", "two", "three"),
-                                locale = Locale("bg")
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
-                                .padding(start = 40.dp, end = 40.dp)
-                        )
-
-                        Text(
-                            text = api.stringResource(
-                                context = LocalContext.current,
-                                id = R.string.async_string,
-                                formatArgs = arrayOf("one", "two", "three"),
-                                locale = Locale("sa")
+                                "one", "two", "three"
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -126,7 +87,6 @@ class MainActivity : ComponentActivity() {
                     LocalContext.current,
                     id = R.string.hello,
                     name,
-                    locale = Locale("bg")
                 )
             )
         }

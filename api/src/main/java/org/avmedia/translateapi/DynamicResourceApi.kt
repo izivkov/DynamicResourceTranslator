@@ -16,8 +16,8 @@ object DynamicResourceApi {
         return this
     }
 
-    fun setLanguage(locale: Locale): DynamicResourceApi {
-        getApi().setLanguage(locale)
+    fun setAppLocale(locale: Locale): DynamicResourceApi {
+        getApi().setAppLocale(locale)
         return this
     }
 
@@ -28,16 +28,6 @@ object DynamicResourceApi {
 
     fun setEngine(engine: ITranslationEngine): DynamicResourceApi {
         getApi().setEngine(engine)
-        return this
-    }
-
-    fun addEngines(engines: Collection<ITranslationEngine>): DynamicResourceApi {
-        getApi().addEngines(engines)
-        return this
-    }
-
-    fun addEngine(engine: ITranslationEngine): DynamicResourceApi {
-        getApi().addEngine(engine)
         return this
     }
 
