@@ -88,7 +88,7 @@ Optionally, during initialization, you can also set `language`, `overWrites` and
         .setAppLocale(Locale("es"))
         .setEngine(BushTranslationEngine())
 ```
-Setting the `App Locale` tells the library that your default `strings.xml` contains string in the language. In this 
+Setting the `App Locale` tells the library that your default `strings.xml` contains string in the specified language. In this 
 case, we tell the app that the strings are in Spanish. For more information, see [Application-language-vs-Default-Language](#application-language-vs-default-language).
 
 Then retrieve the API anywhere in your program:
