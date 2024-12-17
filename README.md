@@ -28,7 +28,6 @@ res/
 - Dynamically translates string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
 - Respects existing language-specific `string.xml`.
 - Supports fine-tuning of translation when automatic translations should be corrected ot shortened.
-- Allows multiple language translations on the same page.
 - Provides a pluggable translation engine architecture.
 
 ## How It Works
