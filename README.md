@@ -86,10 +86,10 @@ Optionally, during initialization, you can also set `language`, `overWrites` and
             ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
             ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
         ))
-        .setAppLanguage(Locale("es"))
+        .setAppLocale(Locale("es"))
         .setEngine(BushTranslationEngine())
 ```
-Setting the `appLanguage` tells the library that your default `strings.xml` contains string in the language. In this 
+Setting the `App Locale` tells the library that your default `strings.xml` contains string in the language. In this 
 case, we tell the app that the strings are in Spanish. For more information, see [Application-language-vs-Default-Language](#application-language-vs-default-language).
 
 Then retrieve the API anywhere in your program:
@@ -102,7 +102,7 @@ Then retrieve the API anywhere in your program:
 ```kotlin
     val api = DynamicTranslator()
         .init ()            
-        .setAppLanguage(Locale("es"))      // optional
+        .setAppLocale(Locale("es"))      // optional
         .setOverwrites(                 // optional
            arrayOf(
               ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
@@ -134,11 +134,9 @@ This method is better suitable if you like to use [Dagger / Hilt](https://develo
 
 Suppose your app is designed for the local market in Germany, and you only have a default `strings.xml` file containing German strings. 
 In this case, the **Application Language** is German. To avoid unnecessary translation, you should call:
-
 ```kotlin
-setAppLanguage(Locale("de"))
-```  
-
+setAppLocale(Locale("de"))
+```
 during library initialization. If your `strings.xml` file is in English, there is no need to call this function.
 
 On the other hand, the **Default Language** refers to the language currently set on the user's device. For example, if a user in Spain 

@@ -10,7 +10,8 @@ class DynamicTranslator : IDynamicTranslator {
     override var appLocale = Locale("en")
     override val translationOverwrites = TranslationOverwrites()
     override val networkConnectionChecker = NetworkConnectionChecker()
-    private var translatorEngine: ITranslationEngine = BushTranslationEngine()
+    private var translatorEngines: MutableList<ITranslationEngine> =
+        mutableListOf(BushTranslationEngine())
 
     override fun init(): DynamicTranslator {
         // Do initialization here...
@@ -23,7 +24,18 @@ class DynamicTranslator : IDynamicTranslator {
     }
 
     override fun setEngine(engine: ITranslationEngine): DynamicTranslator {
-        translatorEngine = engine
+        translatorEngines.clear()
+        translatorEngines.add(engine)
+        return this
+    }
+
+    override fun addEngine(engine: ITranslationEngine): DynamicTranslator {
+        translatorEngines.add(engine)
+        return this
+    }
+
+    override fun addEngines(engines: Collection<ITranslationEngine>): DynamicTranslator {
+        translatorEngines.addAll(engines)
         return this
     }
 
@@ -105,14 +117,26 @@ class DynamicTranslator : IDynamicTranslator {
     }
 
     private fun translate(inText: String, locale: Locale): String {
-        val result = translatorEngine.translate(inText, Locale.getDefault())
-        println("Translated $inText -> $result")
-        return result
+        var currentText = inText
+        for (engine in translatorEngines) {
+            val result = engine.translate(currentText, locale)
+            println ("Translated $inText -> $result")
+            if (result.isNotBlank()) {
+                currentText = result
+            }
+        }
+        return currentText
     }
 
     private suspend fun translateAsync(inText: String, locale: Locale): String {
-        val result = translatorEngine.translate(inText, locale)
-        return result
+        var currentText = inText
+        for (engine in translatorEngines) {
+            val result = engine.translate(currentText, locale)
+            if (result.isNotBlank()) {
+                currentText = result
+            }
+        }
+        return currentText
     }
 
     private inline fun <T> computeValue(

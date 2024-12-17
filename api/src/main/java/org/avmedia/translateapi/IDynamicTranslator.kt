@@ -12,6 +12,8 @@ interface IDynamicTranslator {
     fun setAppLocale(locale: Locale): DynamicTranslator
     fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator
     fun setEngine(engine: ITranslationEngine): DynamicTranslator
+    fun addEngine(engine: ITranslationEngine): DynamicTranslator
+    fun addEngines(engines: Collection<ITranslationEngine>): DynamicTranslator
     fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>)
     fun addOverwrite(overWrite: Pair<ResourceLocaleKey, String>)
 

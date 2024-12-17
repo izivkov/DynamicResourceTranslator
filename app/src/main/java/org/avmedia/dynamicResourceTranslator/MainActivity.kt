@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import org.avmedia.dynamicResourceTranslator.ui.theme.DynamicResourceTranslatorTheme
 import org.avmedia.translateapi.DynamicResourceApi
 import org.avmedia.translateapi.ResourceLocaleKey
-import org.avmedia.translateapi.engine.BushTranslationEngine
 import java.util.Locale
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -29,12 +28,14 @@ class MainActivity : ComponentActivity() {
 
     private val api = DynamicResourceApi
         .init()
-        .setOverwrites(arrayOf(
-            ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-            ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
-        ))
+        .setOverwrites(
+            arrayOf(
+                ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+            )
+        )
         .setAppLocale(Locale("bg"))
-        // .setEngine(UppercaseTranslationEngine())
+        .addEngine(UppercaseTranslationEngine())
         .getApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
