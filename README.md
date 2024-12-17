@@ -210,7 +210,6 @@ For the purposes of illustration, here’s a trivial engine that converts all st
 
 ```kotlin
 class UppercaseTranslationEngine : ITranslationEngine {
-   override fun isInline(): Boolean = true
    override fun translate(text: String, target: Locale): String = text.uppercase()
    override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
 }
