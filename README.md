@@ -237,6 +237,19 @@ DynamicTranslator().init()
         listOf(
             BushTranslationEngine(), 
             UppercaseTranslationEngine()))
+
+// Or to add an engine, you would call:
+DynamicTranslator().init()
+   .addEngine(
+         UppercaseTranslationEngine())
+
+// Or: 
+DynamicTranslator().init()
+   .addEngines(
+      listOf(
+         UppercaseTranslationEngine(),
+         // more engines here...
+       ))
 ```
 The output of `BushTranslationEngine` will be fed to `UppercaseTranslationEngine` for further transformation.
 
