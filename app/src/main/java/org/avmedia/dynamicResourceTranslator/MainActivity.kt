@@ -34,7 +34,16 @@ class MainActivity : ComponentActivity() {
                 ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
             )
         )
-        .addEngine(UppercaseTranslationEngine())
+
+        // Set app's language if default strings.xml not in English
+        // .setAppLocale(Locale("de"))
+
+        // If you like to replace the built in BushTranslationEngine() with your own
+        // .setEngine(YourOwnTranslationEngine())
+
+        // Convert to uppercase after translating, or add your own translator.
+        // .addEngine(UppercaseTranslationEngine())
+
         .getApi()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +63,17 @@ class MainActivity : ComponentActivity() {
                     {
                         Greeting(
                             name = "World",
+                        )
+
+                        Text(
+                            text = api.stringResource(
+                                context = LocalContext.current,
+                                id = R.string.instructions,
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(start = 40.dp, end = 40.dp)
                         )
 
                         Text(
