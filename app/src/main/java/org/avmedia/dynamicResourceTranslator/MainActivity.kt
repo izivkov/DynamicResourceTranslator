@@ -30,11 +30,10 @@ class MainActivity : ComponentActivity() {
         .init()
         .setOverwrites(
             arrayOf(
-                ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
+                ResourceLocaleKey(R.string.hello, Locale("es")) to "[Hola] %1\$s",
                 ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
             )
         )
-        .setAppLocale(Locale("bg"))
         .addEngine(UppercaseTranslationEngine())
         .getApi()
 
@@ -54,14 +53,13 @@ class MainActivity : ComponentActivity() {
                     )
                     {
                         Greeting(
-                            name = "Android",
+                            name = "World",
                         )
 
                         Text(
                             text = api.stringResource(
                                 context = LocalContext.current,
-                                id = R.string.async_string,
-                                "one", "two", "three"
+                                id = R.string.profound_statement,
                             ),
                             modifier = Modifier
                                 .fillMaxWidth()

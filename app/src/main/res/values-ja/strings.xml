@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">ダイナミックリソース翻訳者</string>
     <string name="hello">From File: こんにちは %1$s!</string>
-    <string name="description">From File: このライブラリは、実行時にリソースを動的に翻訳することができます。</string>
-    <string name="async_string">From File: この文字列は非同期で読み込まれます %1$s %2$s %3$s</string>
+    <string name="profound_statement">私たちは皆同じ空の下で生きていますが、それを違う形で見ています。</string>
 </resources>
