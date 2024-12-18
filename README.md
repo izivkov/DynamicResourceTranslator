@@ -86,7 +86,6 @@ Optionally, during initialization, you can also set `language`, `overWrites` and
             ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
         ))
         .setAppLocale(Locale("es"))
-        .setEngine(BushTranslationEngine())
 ```
 Setting the `App Locale` tells the library that your default `strings.xml` contains string in the specified language, Spanish in this case.
 For more information, see [Application-language-vs-Default-Language](#application-language-vs-default-language).
@@ -131,12 +130,9 @@ This method is better suitable if you like to use [Dagger / Hilt](https://develo
    ``` 
 ### Application Language vs. Default Language
 
-Suppose your app is designed for the local market in Germany, and you only have a default `strings.xml` file containing German strings. 
-In this case, the **Application Language** is German. To avoid unnecessary translation, you should call:
-```kotlin
-setAppLocale(Locale("de"))
-```
-during library initialization. If your `strings.xml` file is in English, there is no need to call this function.
+`Application language` is the language of your default `strings.xml` file. If you create this file with German strings instead of English,
+your **Application Language** is German. To avoid unnecessary translation, you should call 
+`setAppLocale(Locale("de"))` during library initialization. If your `strings.xml` file is in English, there is no need to call this function.
 
 On the other hand, the **Default Language** refers to the language currently set on the user's device. For example, if a user in Spain 
 has their device set to Spanish, the default system language will be Spanish. This is the language into which strings should be translated.
@@ -184,7 +180,7 @@ In addition, the API provides two functions to add overwrites from anywhere in y
 
 ### When is Run-Time Translation Initiated?
 
-Run-time translation is initiated when the following conditions are met:
+Run-time translation is triggered when the following conditions are met:
 
 1. **No Overwrite Exists:**  
    If an `overWrite` value exists for this string and language, it will be used directly without further translation.
