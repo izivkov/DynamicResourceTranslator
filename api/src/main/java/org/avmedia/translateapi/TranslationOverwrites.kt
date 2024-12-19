@@ -1,7 +1,5 @@
 package org.avmedia.translateapi
 
-import java.util.Locale
-
 class TranslationOverwrites {
     private val resourceLocaleMap = mutableMapOf<ResourceLocaleKey, String>()
 

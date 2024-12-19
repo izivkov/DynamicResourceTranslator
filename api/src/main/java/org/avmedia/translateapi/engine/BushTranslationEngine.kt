@@ -2,7 +2,6 @@ package org.avmedia.translateapi.engine
 
 import me.bush.translator.Language
 import me.bush.translator.Translator
-import org.avmedia.translateapi.NetworkConnectionChecker
 import java.util.Locale
 
 class BushTranslationEngine (
