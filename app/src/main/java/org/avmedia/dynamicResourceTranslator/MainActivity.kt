@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
             Modifier
         ) {
             // overwrite translation here if you like.
-            // api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("bg")) to "[[Hola]]")
+            // api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здрасти %1\$s")
 
             Text(
                 text = api.stringResource(
