@@ -19,9 +19,6 @@ object LocalDataStorage {
     // Use a DataStore delegate in context
     private val Context.dataStore by preferencesDataStore(
         name = STORAGE_NAME,
-        produceMigrations = { context ->
-            listOf(SharedPreferencesMigration(context, STORAGE_NAME))
-        }
     )
 
     private fun put(context: Context, key: Int, value: String) {
