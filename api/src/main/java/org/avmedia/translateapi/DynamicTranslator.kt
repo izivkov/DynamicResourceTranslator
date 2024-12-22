@@ -222,7 +222,7 @@ class DynamicTranslator : IDynamicTranslator {
         val defaultLanguage = defaultLocale.language
         val appLanguage = appLocale.language
 
-        val localStr = getStringByLocal(context, id, formatArgs, defaultLanguage)
+        val localStr = getStringByLocale(context, id, formatArgs, defaultLanguage)
         val defaultStr = readStringFromDefaultFile(context, id, formatArgs)
 
         return localStr != defaultStr
@@ -241,10 +241,10 @@ class DynamicTranslator : IDynamicTranslator {
         its own strings.xml file and therefore falls back to the default.
         */
 
-        return getStringByLocal(context, id, formatArgs, Locale("kv").language)
+        return getStringByLocale(context, id, formatArgs, Locale("kv").language)
     }
 
-    private fun getStringByLocal(
+    private fun getStringByLocale(
         context: Context,
         id: Int,
         formatArgs: Array<out Any>,
