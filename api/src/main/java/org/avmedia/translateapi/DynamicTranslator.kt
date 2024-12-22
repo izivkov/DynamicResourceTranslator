@@ -235,10 +235,11 @@ class DynamicTranslator : IDynamicTranslator {
         formatArgs: Array<out Any>,
     ): String {
         /*
-        This is a hack, but it allows us to determine if the string is read from the language-specific strings.xml,
-        or from default strings.xml. We are using an uncommon Locale, "kv" which should not have its own strings.xml, and will use the
-        default.
-         */
+        This approach is a workaround, but it helps us identify whether the string is
+        being sourced from a language-specific strings.xml file or the default strings.xml.
+        We achieve this by using an uncommon locale, "kv", which is not expected to have
+        its own strings.xml file and therefore falls back to the default.
+        */
 
         return getStringByLocal(context, id, formatArgs, Locale("kv").language)
     }
