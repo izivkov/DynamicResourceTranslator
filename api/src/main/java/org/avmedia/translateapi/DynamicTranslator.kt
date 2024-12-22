@@ -119,7 +119,7 @@ class DynamicTranslator : IDynamicTranslator {
     private fun translate(inText: String, locale: Locale): String {
         var currentText = inText
         for (engine in translatorEngines) {
-            val result = engine.translate(currentText, remapObsoleteCodes(locale))
+            val result = engine.translate(currentText, locale)
             println ("Translated $inText -> $result")
             if (result.isNotBlank()) {
                 currentText = result
@@ -131,29 +131,12 @@ class DynamicTranslator : IDynamicTranslator {
     private suspend fun translateAsync(inText: String, locale: Locale): String {
         var currentText = inText
         for (engine in translatorEngines) {
-            val result = engine.translate(currentText, remapObsoleteCodes(locale))
+            val result = engine.translate(currentText, locale)
             if (result.isNotBlank()) {
                 currentText = result
             }
         }
         return currentText
-    }
-
-    private fun remapObsoleteCodes(locale: Locale): Locale {
-        // Map of obsolete language codes to updated codes
-        val languageMap = mapOf(
-            "in" to "id", // Indonesian
-            "iw" to "he", // Hebrew
-            "ji" to "yi", // Yiddish
-            "sh" to "sr",  // Serbo-Croatian
-            "nb" to "no",  // Norwegian Bokmål
-        )
-
-        // Get the remapped language code if applicable
-        val updatedLanguage = languageMap[locale.language] ?: locale.language
-
-        // Return a new Locale with the updated language code
-        return Locale(updatedLanguage, locale.country)
     }
 
     private inline fun <T> computeValue(

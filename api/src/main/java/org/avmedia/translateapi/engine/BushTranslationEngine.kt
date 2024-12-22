@@ -15,7 +15,7 @@ class BushTranslationEngine (
     ): String {
         return translator.translateBlocking(
             text,
-            Language(target.language),
+            Language(remapObsoleteCodes(target.language)),
             Language.AUTO,
         ).translatedText
     }
@@ -26,8 +26,22 @@ class BushTranslationEngine (
     ): String {
         return translator.translate(
             text,
-            Language(target.language),
+            Language(remapObsoleteCodes(target.language)),
             Language.AUTO,
         ).translatedText
+    }
+
+    private fun remapObsoleteCodes(languageCode: String): String {
+        // Map of obsolete codes to updated codes
+        val languageMap = mapOf(
+            "in" to "id", // Indonesian
+            "iw" to "he", // Hebrew
+            "ji" to "yi", // Yiddish
+            "sh" to "sr",  // Serbo-Croatian
+            "nb" to "no",  // Norwegian Bokmål
+        )
+
+        // Return the updated code if found in the map; otherwise, return the input code
+        return languageMap[languageCode] ?: languageCode
     }
 }
