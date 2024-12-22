@@ -212,9 +212,10 @@ class DynamicTranslator : IDynamicTranslator {
         formatArgs: Array<out Any>,
     ): Boolean {
         /*
-        We compare a string from the default string.xml with the target locale string,
-        and if identical, this means the target is also using default, and
-        there is no string.xml for it. This tess us if we should translate the string.
+        We compare a string from the default strings.xml file with the corresponding string in the target locale.
+        If the two strings are identical, it indicates that the target locale is falling back to the default strings.xml
+        because a locale-specific strings.xml file does not exist.
+        This helps us determine whether the string needs translation.
         */
 
         val defaultLocale = Locale.getDefault()
@@ -234,8 +235,8 @@ class DynamicTranslator : IDynamicTranslator {
         formatArgs: Array<out Any>,
     ): String {
         /*
-        This is a hack, but it allows us to determine if the string is read from the language-specific string.xml,
-        or from default string.xml. We are using a uncommon Locale, "kv" which should nor have its own string.xml, and will use the
+        This is a hack, but it allows us to determine if the string is read from the language-specific strings.xml,
+        or from default strings.xml. We are using an uncommon Locale, "kv" which should not have its own strings.xml, and will use the
         default.
          */
 
