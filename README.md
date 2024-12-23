@@ -26,7 +26,7 @@ res/
 ## Features
 
 - Dynamically translates string resources at runtime, eliminating the need for multiple language-specific `strings.xml`.
-- Respects existing language-specific `string.xml`.
+- Respects existing language-specific `strings.xml`.
 - Supports fine-tuning of translation when automatic translations should be corrected ot shortened.
 - Provides a pluggable translation engine architecture.
 
@@ -82,8 +82,8 @@ Optionally, during initialization, you can also set `language`, `overWrites` and
 ```kotlin
     DynamicResourceApi.init()
         .setOverwrites(arrayOf(
-            ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-            ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+            ResourceLocaleKey(R.string.hello, Locale("es")) to {"Hola"},
+            ResourceLocaleKey(R.string.hello, Locale("bg")) to {"Здравей %1\$s"}
         ))
         .setAppLocale(Locale("es"))
 ```
@@ -103,8 +103,8 @@ Then retrieve the API anywhere in your program:
         .setAppLocale(Locale("es"))      // optional
         .setOverwrites(                 // optional
            arrayOf(
-              ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-              ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+              ResourceLocaleKey(R.string.hello, Locale("es")) to {"Hola"},
+              ResourceLocaleKey(R.string.hello, Locale("bg")) to {"Здравей %1\$s"}
            )
         )
 ```
