@@ -1,19 +1,19 @@
 package org.avmedia.translateapi
 
 class TranslationOverwrites {
-    private val resourceLocaleMap = mutableMapOf<ResourceLocaleKey, String>()
+    private val resourceLocaleMap = mutableMapOf<ResourceLocaleKey, () -> String>()
 
-    fun addAll(entries: Array<Pair<ResourceLocaleKey, String>>) {
+    fun addAll(entries: Array<Pair<ResourceLocaleKey, () -> String>>) {
         entries.forEach { (key, value) ->
             resourceLocaleMap[key] = value
         }
     }
 
-    fun add(key: ResourceLocaleKey, value: String) {
+    fun add(key: ResourceLocaleKey, value: () -> String) {
         resourceLocaleMap[key] = value
     }
 
-    operator fun get(key: ResourceLocaleKey): String? {
+    operator fun get(key: ResourceLocaleKey): (() -> String)? {
         return resourceLocaleMap[key]
     }
 
@@ -22,5 +22,5 @@ class TranslationOverwrites {
     }
 
     // For testing or accessing the map
-    fun getMap(): Map<ResourceLocaleKey, String> = resourceLocaleMap
+    fun getMap(): Map<ResourceLocaleKey, () -> String> = resourceLocaleMap
 }

@@ -161,8 +161,8 @@ You can override specific translations in one of the following two ways:
       DynamicResourceApi.init()
           .setOverwrites(                 // optional 
              arrayOf(
-                ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+                ResourceLocaleKey(R.string.hello, Locale("es")) to {"Hola"},
+                ResourceLocaleKey(R.string.hello, Locale("bg")) to {"Здравей %1\$s"}
              )
         )
 ```
@@ -171,12 +171,31 @@ In addition, the API provides two functions to add overwrites from anywhere in y
 
 ```kotlin
     api.addOverwrites(arrayOf(
-        ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola",
-        ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
+        ResourceLocaleKey(R.string.hello, Locale("es")) to {"Hola"},
+        ResourceLocaleKey(R.string.hello, Locale("bg")) to {"Здравей %1\$s"}
     ))
 
-    api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("es")) to "Hola")
+    api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("es")) to {"Hola"})
 ```
+
+**Translation Overwrites** map a pair of `(ID, Locale)` to a `lambda` that returns a `String`. 
+The lambda can perform arbitrary transformations on the string, providing flexibility for dynamic content generation.
+
+For example, the following overwrite customizes the English string with the ID `R.string.hello` to give a time-of-day-specific greeting:
+
+```kotlin
+ResourceLocaleKey(R.string.hello, Locale("en")) to {
+    val currentHour = java.time.LocalTime.now().hour
+    when (currentHour) {
+        in 5..11 -> "Good Morning"
+        in 12..17 -> "Good Afternoon"
+        in 18..21 -> "Good Evening"
+        else -> "Good Night"
+    } + ", %1\$s"
+}
+```
+
+Keep in mind that **overwrites** take precedence over both translations and strings defined in `strings.xml`, ensuring they are applied even if a translation exists for the target locale.
 
 ### When is Run-Time Translation Initiated?
 

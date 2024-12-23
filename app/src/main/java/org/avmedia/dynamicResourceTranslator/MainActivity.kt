@@ -30,9 +30,18 @@ class MainActivity : ComponentActivity() {
         .init()
         .setOverwrites(
             arrayOf(
-                ResourceLocaleKey(R.string.hello, Locale("es")) to "[Hola] %1\$s",
-                ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здравей %1\$s"
-            )
+                ResourceLocaleKey(R.string.hello, Locale("es")) to { "[Hola] %1\$s" },
+                ResourceLocaleKey(R.string.hello, Locale("bg")) to { "Здравей %1\$s" },
+
+                ResourceLocaleKey(R.string.hello, Locale("en")) to {
+                    val currentHour = java.time.LocalTime.now().hour
+                    when (currentHour) {
+                        in 5..11 -> "Good Morning"
+                        in 12..17 -> "Good Afternoon"
+                        in 18..21 -> "Good Evening"
+                        else -> "Good Night"
+                    } + ", %1\$s"
+                })
         )
 
         // Set app's language if default strings.xml not in English

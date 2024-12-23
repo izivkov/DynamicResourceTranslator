@@ -39,17 +39,17 @@ class DynamicTranslator : IDynamicTranslator {
         return this
     }
 
-    override fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicTranslator {
+    override fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, () -> String>>): DynamicTranslator {
         translationOverwrites.clear()
         translationOverwrites.addAll(entries)
         return this
     }
 
-    override fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>) {
+    override fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, () -> String>>) {
         translationOverwrites.addAll(entries)
     }
 
-    override fun addOverwrite(overWrite: Pair<ResourceLocaleKey, String>) {
+    override fun addOverwrite(overWrite: Pair<ResourceLocaleKey, () -> String>) {
         translationOverwrites.add(overWrite.first, overWrite.second)
     }
 
@@ -177,7 +177,7 @@ class DynamicTranslator : IDynamicTranslator {
 
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, defaultLocale)]
         if (overWrittenValue != null) {
-            return PreprocessResult(String.format(overWrittenValue, *formatArgs), false)
+            return PreprocessResult(String.format(overWrittenValue.invoke(), *formatArgs), false)
         }
 
         val storedValue = LocalDataStorage.getResource(context, resourceLocaleKey)

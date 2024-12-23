@@ -21,7 +21,7 @@ object DynamicResourceApi {
         return this
     }
 
-    fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, String>>): DynamicResourceApi {
+    fun setOverwrites(entries: Array<Pair<ResourceLocaleKey, () -> String>>): DynamicResourceApi {
         getApi().setOverwrites(entries)
         return this
     }
