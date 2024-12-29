@@ -1,7 +1,10 @@
 package org.avmedia.translateapi.engine
 
+import kotlinx.coroutines.delay
 import me.bush.translator.Language
+import me.bush.translator.TranslationException
 import me.bush.translator.Translator
+import java.lang.Thread.sleep
 import java.util.Locale
 
 class BushTranslationEngine (

@@ -2,6 +2,9 @@ package org.avmedia.translateapi
 
 import android.content.Context
 import android.content.res.Configuration
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.avmedia.translateapi.engine.BushTranslationEngine
 import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
@@ -12,6 +15,12 @@ class DynamicTranslator : IDynamicTranslator {
     override val networkConnectionChecker = NetworkConnectionChecker()
     private var translatorEngines: MutableList<ITranslationEngine> =
         mutableListOf(BushTranslationEngine())
+
+    private var saveMode = false
+    override fun setSaveMode (saveMode: Boolean): DynamicTranslator {
+        this.saveMode = saveMode
+        return this
+    }
 
     override fun init(): DynamicTranslator {
         // Do initialization here...
@@ -70,6 +79,9 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
+        if (saveMode) {
+            return context.getString(id, *formatArgs)
+        }
         return computeValue(
             context = context,
             id = id,
@@ -94,6 +106,9 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
+        if (saveMode) {
+            return context.getString(id, *formatArgs)
+        }
         return computeValue(
             context = context,
             id = id,
@@ -109,6 +124,9 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
+        if (saveMode) {
+            return context.getString(id, *formatArgs)
+        }
         return computeValue(
             context = context,
             id = id,
@@ -118,20 +136,32 @@ class DynamicTranslator : IDynamicTranslator {
 
     private fun translate(inText: String, locale: Locale): String {
         var currentText = inText
+
         for (engine in translatorEngines) {
-            val result = engine.translate(currentText, locale)
-            println ("Translated $inText -> $result")
-            if (result.isNotBlank()) {
-                currentText = result
+            try {
+                val result = runBlocking {
+                    withTimeout(2000) { // 2-second timeout
+                        engine.translate(currentText, locale) // Perform the translation
+                    }
+                }
+                println("Translated $inText -> $result")
+                if (result.isNotBlank()) {
+                    currentText = result
+                }
+            } catch (e: TimeoutCancellationException) {
+                println("Translation timed out for engine: $engine")
+            } catch (e: Exception) {
+                println("Error during translation with engine $engine: ${e.message}")
             }
         }
+
         return currentText
     }
 
     private suspend fun translateAsync(inText: String, locale: Locale): String {
         var currentText = inText
         for (engine in translatorEngines) {
-            val result = engine.translate(currentText, locale)
+            val result = engine.translateAsync(currentText, locale)
             if (result.isNotBlank()) {
                 currentText = result
             }
@@ -173,7 +203,6 @@ class DynamicTranslator : IDynamicTranslator {
         resourceLocaleKey: ResourceLocaleKey
     ): PreprocessResult {
         val defaultLocale = Locale.getDefault()
-        val language = defaultLocale.language.lowercase()
 
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, defaultLocale)]
         if (overWrittenValue != null) {
@@ -185,7 +214,7 @@ class DynamicTranslator : IDynamicTranslator {
             return PreprocessResult(storedValue, false)
         }
 
-        val resourceString = context.getString(id, *formatArgs, language)
+        val resourceString = context.getString(id, *formatArgs)
 
         if (isResourceAvailableForLocale(context, id, formatArgs)) {
             return PreprocessResult(resourceString, false)
