@@ -16,9 +16,9 @@ class DynamicTranslator : IDynamicTranslator {
     private var translatorEngines: MutableList<ITranslationEngine> =
         mutableListOf(BushTranslationEngine())
 
-    private var saveMode = false
-    override fun setSaveMode (saveMode: Boolean): DynamicTranslator {
-        this.saveMode = saveMode
+    private var safeMode = false
+    override fun setSafeMode (safeMode: Boolean): DynamicTranslator {
+        this.safeMode = safeMode
         return this
     }
 
@@ -79,7 +79,7 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        if (saveMode) {
+        if (safeMode) {
             return context.getString(id, *formatArgs)
         }
         return computeValue(
@@ -106,7 +106,7 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        if (saveMode) {
+        if (safeMode) {
             return context.getString(id, *formatArgs)
         }
         return computeValue(
@@ -124,7 +124,7 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        if (saveMode) {
+        if (safeMode) {
             return context.getString(id, *formatArgs)
         }
         return computeValue(
