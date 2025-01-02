@@ -16,7 +16,7 @@ interface IDynamicTranslator {
     fun addEngines(engines: Collection<ITranslationEngine>): DynamicTranslator
     fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, () -> String>>)
     fun addOverwrite(overWrite: Pair<ResourceLocaleKey, () -> String>)
-    fun setSafeMode (saveMode: Boolean): DynamicTranslator
+    fun setSafeMode (safeMode: Boolean): DynamicTranslator
 
     fun getString(
         context: Context,

@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import me.bush.translator.TranslationException
 import org.avmedia.translateapi.engine.BushTranslationEngine
 import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
@@ -17,7 +18,7 @@ class DynamicTranslator : IDynamicTranslator {
         mutableListOf(BushTranslationEngine())
 
     private var safeMode = false
-    override fun setSafeMode (safeMode: Boolean): DynamicTranslator {
+    override fun setSafeMode(safeMode: Boolean): DynamicTranslator {
         this.safeMode = safeMode
         return this
     }
@@ -137,21 +138,25 @@ class DynamicTranslator : IDynamicTranslator {
     private fun translate(inText: String, locale: Locale): String {
         var currentText = inText
 
-        for (engine in translatorEngines) {
-            try {
-                val result = runBlocking {
-                    withTimeout(2000) { // 2-second timeout
+        translatorEngines.forEach { engine ->
+            runCatching {
+                runBlocking {
+                    withTimeout(2000) {
                         engine.translate(currentText, locale) // Perform the translation
                     }
                 }
-                println("Translated $inText -> $result")
+            }.onSuccess { result ->
                 if (result.isNotBlank()) {
                     currentText = result
+                    println("Translated $inText -> $result")
                 }
-            } catch (e: TimeoutCancellationException) {
-                println("Translation timed out for engine: $engine")
-            } catch (e: Exception) {
-                println("Error during translation with engine $engine: ${e.message}")
+            }.onFailure { e ->
+                when (e) {
+                    is TranslationException -> println ("Translation Exception in engine: $engine")
+                    is TimeoutCancellationException -> println("Translation timed out for engine: $engine")
+                    else -> println("Error during translation with engine $engine: ${e.message}")
+                }
+                safeMode = true
             }
         }
 
@@ -183,7 +188,8 @@ class DynamicTranslator : IDynamicTranslator {
 
         // If further translation is needed, apply the translation function
         if (preProcessedResult.needsFurtherTranslation) {
-            val translatedValue = translateFunc(preProcessedResult.preProcessedString, Locale.getDefault())
+            val translatedValue =
+                translateFunc(preProcessedResult.preProcessedString, Locale.getDefault())
 
             // Post-process the translated result and store it for caching or reuse
             postProcess(context, translatedValue.toString(), resourceLocaleKey)
