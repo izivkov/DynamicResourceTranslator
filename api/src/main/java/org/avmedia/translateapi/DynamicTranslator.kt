@@ -80,9 +80,6 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        if (safeMode) {
-            return context.getString(id, *formatArgs)
-        }
         return computeValue(
             context = context,
             id = id,
@@ -107,9 +104,6 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        if (safeMode) {
-            return context.getString(id, *formatArgs)
-        }
         return computeValue(
             context = context,
             id = id,
@@ -125,9 +119,6 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        if (safeMode) {
-            return context.getString(id, *formatArgs)
-        }
         return computeValue(
             context = context,
             id = id,
@@ -210,6 +201,12 @@ class DynamicTranslator : IDynamicTranslator {
     ): PreprocessResult {
         val defaultLocale = Locale.getDefault()
 
+        val resourceString = context.getString(id, *formatArgs)
+
+        if (safeMode) {
+            return PreprocessResult(resourceString, false)
+        }
+
         val overWrittenValue = translationOverwrites[ResourceLocaleKey(id, defaultLocale)]
         if (overWrittenValue != null) {
             return PreprocessResult(String.format(overWrittenValue.invoke(), *formatArgs), false)
@@ -219,8 +216,6 @@ class DynamicTranslator : IDynamicTranslator {
         if (storedValue != null) {
             return PreprocessResult(storedValue, false)
         }
-
-        val resourceString = context.getString(id, *formatArgs)
 
         if (isResourceAvailableForLocale(context, id, formatArgs)) {
             return PreprocessResult(resourceString, false)
