@@ -29,10 +29,4 @@ interface IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String
-
-    suspend fun stringResourceAsync(
-        context: Context,
-        id: Int,
-        vararg formatArgs: Any,
-    ): String
 }

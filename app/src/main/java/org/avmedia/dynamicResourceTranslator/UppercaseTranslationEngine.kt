@@ -11,11 +11,4 @@ class UppercaseTranslationEngine: ITranslationEngine {
     ): String {
         return text.uppercase()
     }
-
-    override suspend fun translateAsync(
-        text: String,
-        target: Locale,
-    ): String {
-        return text.uppercase()
-    }
 }

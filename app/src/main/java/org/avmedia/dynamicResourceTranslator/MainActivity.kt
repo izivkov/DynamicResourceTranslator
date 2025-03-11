@@ -28,6 +28,7 @@ class MainActivity : ComponentActivity() {
 
     private val api = DynamicResourceApi
         .init()
+        // .addEngine(UppercaseTranslationEngine())
         .setOverwrites(
             arrayOf(
                 ResourceLocaleKey(R.string.hello, Locale("es")) to { "[Hola] %1\$s" },

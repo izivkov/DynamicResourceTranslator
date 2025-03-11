@@ -2,10 +2,6 @@ package org.avmedia.translateapi
 
 import android.content.Context
 import android.content.res.Configuration
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
-import me.bush.translator.TranslationException
 import org.avmedia.translateapi.engine.BushTranslationEngine
 import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
@@ -111,57 +107,13 @@ class DynamicTranslator : IDynamicTranslator {
         ) { text: String, language: Locale -> translate(text, language) }
     }
 
-    /**
-     *  same as [stringResource], but suspended
-     */
-    override suspend fun stringResourceAsync(
-        context: Context,
-        id: Int,
-        vararg formatArgs: Any,
-    ): String {
-        return computeValue(
-            context = context,
-            id = id,
-            formatArgs = formatArgs,
-        ) { text: String, language: Locale -> translateAsync(text, language) }
-    }
-
     private fun translate(inText: String, locale: Locale): String {
         var currentText = inText
 
         translatorEngines.forEach { engine ->
-            runCatching {
-                runBlocking {
-                    withTimeout(2000) {
-                        engine.translate(currentText, locale) // Perform the translation
-                    }
-                }
-            }.onSuccess { result ->
-                if (result.isNotBlank()) {
-                    currentText = result
-                    println("Translated $inText -> $result")
-                }
-            }.onFailure { e ->
-                when (e) {
-                    is TranslationException -> println ("Translation Exception in engine: $engine")
-                    is TimeoutCancellationException -> println("Translation timed out for engine: $engine")
-                    else -> println("Error during translation with engine $engine: ${e.message}")
-                }
-                safeMode = true
-            }
+            currentText = engine.translate(currentText, locale) // Perform the translation
         }
 
-        return currentText
-    }
-
-    private suspend fun translateAsync(inText: String, locale: Locale): String {
-        var currentText = inText
-        for (engine in translatorEngines) {
-            val result = engine.translateAsync(currentText, locale)
-            if (result.isNotBlank()) {
-                currentText = result
-            }
-        }
         return currentText
     }
 

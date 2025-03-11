@@ -1,14 +1,14 @@
 package org.avmedia.translateapi.engine
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import me.bush.translator.Language
-import me.bush.translator.TranslationException
+import me.bush.translator.Translation
 import me.bush.translator.Translator
-import java.lang.Thread.sleep
 import java.util.Locale
 
-class BushTranslationEngine (
-) : ITranslationEngine {
+class BushTranslationEngine : ITranslationEngine {
 
     private val translator: Translator = Translator()
 
@@ -16,23 +16,18 @@ class BushTranslationEngine (
         text: String,
         target: Locale,
     ): String {
-        return translator.translateBlocking(
-            text,
-            Language(remapObsoleteCodes(target.language)),
-            Language.AUTO,
-        ).translatedText
+        val result = runBlocking {
+            withTimeoutOrNull(1000L) { // Set timeout duration as needed
+                translator.translateBlockingCatching(
+                    text,
+                    Language(remapObsoleteCodes(target.language)),
+                    Language.AUTO,
+                ).getOrNull()?.translatedText
+            }
+        }
+        return result ?: text
     }
 
-    override suspend fun translateAsync(
-        text: String,
-        target: Locale,
-    ): String {
-        return translator.translate(
-            text,
-            Language(remapObsoleteCodes(target.language)),
-            Language.AUTO,
-        ).translatedText
-    }
 
     private fun remapObsoleteCodes(languageCode: String): String {
         // Map of obsolete codes to updated codes

@@ -9,9 +9,4 @@ interface ITranslationEngine {
         text: String,
         target: Locale,
     ): String
-
-    suspend fun translateAsync(
-        text: String,
-        target: Locale,
-    ): String
 }
