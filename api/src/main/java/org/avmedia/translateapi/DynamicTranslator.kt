@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.avmedia.translateapi.engine.BushTranslationEngine
@@ -100,11 +99,6 @@ class DynamicTranslator : IDynamicTranslator {
             )
             withContext(Dispatchers.Main) {
                 callback(translatedString)
-                LocalDataStorage.putResource(
-                    context,
-                    ResourceLocaleKey(id, Locale.getDefault()),
-                    translatedString
-                )
             }
         }
 
@@ -116,11 +110,13 @@ class DynamicTranslator : IDynamicTranslator {
         id: Int,
         vararg formatArgs: Any,
     ): String {
-        return computeValue(
+        val translatedValue = computeValue(
             context = context,
             id = id,
             formatArgs = formatArgs,
         ) { text: String, language: Locale -> translate(text, language) }
+
+        return translatedValue
     }
 
     /**
@@ -159,11 +155,6 @@ class DynamicTranslator : IDynamicTranslator {
             )
             withContext(Dispatchers.Main) {
                 callback(translatedString)
-                LocalDataStorage.putResource(
-                    context,
-                    ResourceLocaleKey(id, Locale.getDefault()),
-                    translatedString
-                )
             }
         }
 
@@ -184,7 +175,6 @@ class DynamicTranslator : IDynamicTranslator {
 
     private fun translate(inText: String, locale: Locale): String {
         var currentText = inText
-
         translatorEngines.forEach { engine ->
             currentText = engine.translate(currentText, locale) // Perform the translation
         }
@@ -204,7 +194,11 @@ class DynamicTranslator : IDynamicTranslator {
         if (preProcessedResult.needsFurtherTranslation) {
             val translatedValue =
                 translateFunc(preProcessedResult.preProcessedString, Locale.getDefault())
-            // postProcess(context, translatedValue.toString(), resourceLocaleKey)
+
+            if (preProcessedResult.preProcessedString != translatedValue.toString()) {
+                postProcess(context, translatedValue.toString(), resourceLocaleKey)
+            }
+
             return translatedValue.toString()
         }
 

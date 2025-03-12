@@ -1,6 +1,5 @@
 package org.avmedia.translateapi.engine
 
-import me.bush.translator.Language
 import java.util.Locale
 
 interface ITranslationEngine {

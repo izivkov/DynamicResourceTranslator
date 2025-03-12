@@ -1,10 +1,8 @@
 package org.avmedia.translateapi.engine
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import me.bush.translator.Language
-import me.bush.translator.Translation
 import me.bush.translator.Translator
 import java.util.Locale
 
