@@ -16,15 +16,29 @@ interface IDynamicTranslator {
     fun addEngines(engines: Collection<ITranslationEngine>): DynamicTranslator
     fun addOverwrites(entries: Array<Pair<ResourceLocaleKey, () -> String>>)
     fun addOverwrite(overWrite: Pair<ResourceLocaleKey, () -> String>)
-    fun setSafeMode (safeMode: Boolean): DynamicTranslator
+    fun setSafeMode(safeMode: Boolean): DynamicTranslator
 
     fun getString(
         context: Context,
         id: Int,
         vararg formatArgs: Any,
+        callback: (String) -> Unit = {},
     ): String
 
     fun stringResource(
+        context: Context,
+        id: Int,
+        vararg formatArgs: Any,
+        callback: (String) -> Unit = {},
+    ): String
+
+    fun getStringBlocking(
+        context: Context,
+        id: Int,
+        vararg formatArgs: Any,
+    ): String
+
+    fun stringResourceBlocking(
         context: Context,
         id: Int,
         vararg formatArgs: Any,

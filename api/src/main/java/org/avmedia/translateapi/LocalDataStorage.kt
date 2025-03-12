@@ -42,8 +42,12 @@ object LocalDataStorage {
         return value
     }
 
-    fun getResource(context: Context, key: ResourceLocaleKey, defaultValue: String? = null): String? {
-        return get (context, key.hashCode(), defaultValue)
+    fun getResource(
+        context: Context,
+        key: ResourceLocaleKey,
+        defaultValue: String? = null
+    ): String? {
+        return get(context, key.hashCode(), defaultValue)
     }
 
     fun delete(context: Context, key: String) {

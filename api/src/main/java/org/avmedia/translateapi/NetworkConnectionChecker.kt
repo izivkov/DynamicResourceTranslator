@@ -7,7 +7,7 @@ import android.provider.Settings
 
 class NetworkConnectionChecker {
 
-    fun isConnected (context: Context): Boolean {
+    fun isConnected(context: Context): Boolean {
         val state = checkNetworkState(context)
         return state == "Connected to WiFi with internet." || state == "Connected to mobile data with internet."
     }
@@ -41,6 +41,10 @@ class NetworkConnectionChecker {
     }
 
     private fun isAirplaneModeOn(context: Context): Boolean {
-        return Settings.Global.getInt(context.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
+        return Settings.Global.getInt(
+            context.contentResolver,
+            Settings.Global.AIRPLANE_MODE_ON,
+            0
+        ) != 0
     }
 }

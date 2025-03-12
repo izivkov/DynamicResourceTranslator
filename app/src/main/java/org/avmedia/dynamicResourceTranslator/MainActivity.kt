@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Text(
-                            text = api.stringResource(
+                            text = api.stringResourceBlocking(
                                 context = LocalContext.current,
                                 id = R.string.instructions,
                             ),
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
                         )
 
                         Text(
-                            text = api.stringResource(
+                            text = api.stringResourceBlocking(
                                 context = LocalContext.current,
                                 id = R.string.profound_statement,
                             ),
@@ -112,7 +112,7 @@ class MainActivity : ComponentActivity() {
             // api.addOverwrite(ResourceLocaleKey(R.string.hello, Locale("bg")) to "Здрасти %1\$s")
 
             Text(
-                text = api.stringResource(
+                text = api.stringResourceBlocking(
                     LocalContext.current,
                     id = R.string.hello,
                     name,

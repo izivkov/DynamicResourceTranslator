@@ -17,7 +17,7 @@ class BushTranslationEngine : ITranslationEngine {
         target: Locale,
     ): String {
         val result = runBlocking {
-            withTimeoutOrNull(1000L) { // Set timeout duration as needed
+            withTimeoutOrNull(3000L) { // Set timeout duration as needed
                 translator.translateBlockingCatching(
                     text,
                     Language(remapObsoleteCodes(target.language)),
@@ -27,7 +27,6 @@ class BushTranslationEngine : ITranslationEngine {
         }
         return result ?: text
     }
-
 
     private fun remapObsoleteCodes(languageCode: String): String {
         // Map of obsolete codes to updated codes

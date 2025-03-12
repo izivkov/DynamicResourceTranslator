@@ -4,7 +4,7 @@ import java.util.Locale
 
 data class ResourceLocaleKey(val resourceId: Int, val locale: Locale) {
     override fun hashCode(): Int {
-        val asString =  "$resourceId.${locale.language.lowercase()}"
+        val asString = "$resourceId.${locale.language.lowercase()}"
         val asHash = asString.hashCode()
         return asHash
     }

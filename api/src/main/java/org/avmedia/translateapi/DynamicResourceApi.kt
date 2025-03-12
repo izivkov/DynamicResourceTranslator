@@ -42,7 +42,7 @@ object DynamicResourceApi {
     }
 
     fun getApi(): DynamicTranslator {
-        require(::translator.isInitialized) {"DynamicResourceApi not initialized. Call init() first."}
+        require(::translator.isInitialized) { "DynamicResourceApi not initialized. Call init() first." }
         return translator
     }
 }

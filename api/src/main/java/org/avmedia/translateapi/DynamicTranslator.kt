@@ -2,6 +2,11 @@ package org.avmedia.translateapi
 
 import android.content.Context
 import android.content.res.Configuration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.avmedia.translateapi.engine.BushTranslationEngine
 import org.avmedia.translateapi.engine.ITranslationEngine
 import java.util.Locale
@@ -75,6 +80,41 @@ class DynamicTranslator : IDynamicTranslator {
         context: Context,
         id: Int,
         vararg formatArgs: Any,
+        callback: (String) -> Unit // use this to trigger UI updates
+    ): String {
+
+        val originalString = computeValue(
+            context = context,
+            id = id,
+            formatArgs = formatArgs,
+            translateFunc = { text: String, _: Locale -> text }
+        )
+
+        // Launch a coroutine to perform the translation asynchronously
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            val translatedString = computeValue(
+                context = context,
+                id = id,
+                formatArgs = formatArgs,
+                translateFunc = { text: String, language: Locale -> translate(text, language) }
+            )
+            withContext(Dispatchers.Main) {
+                callback(translatedString)
+                LocalDataStorage.putResource(
+                    context,
+                    ResourceLocaleKey(id, Locale.getDefault()),
+                    translatedString
+                )
+            }
+        }
+
+        return originalString
+    }
+
+    override fun getStringBlocking(
+        context: Context,
+        id: Int,
+        vararg formatArgs: Any,
     ): String {
         return computeValue(
             context = context,
@@ -96,6 +136,41 @@ class DynamicTranslator : IDynamicTranslator {
      * @return A [String] containing the translated text.
      */
     override fun stringResource(
+        context: Context,
+        id: Int,
+        vararg formatArgs: Any,
+        callback: (String) -> Unit // use this to trigger UI updates
+    ): String {
+
+        val originalString = computeValue(
+            context = context,
+            id = id,
+            formatArgs = formatArgs,
+            translateFunc = { text: String, _: Locale -> text }
+        )
+
+        // Launch a coroutine to perform the translation asynchronously
+        CoroutineScope(Dispatchers.IO).launch(Dispatchers.IO) {
+            val translatedString = computeValue(
+                context = context,
+                id = id,
+                formatArgs = formatArgs,
+                translateFunc = { text: String, language: Locale -> translate(text, language) }
+            )
+            withContext(Dispatchers.Main) {
+                callback(translatedString)
+                LocalDataStorage.putResource(
+                    context,
+                    ResourceLocaleKey(id, Locale.getDefault()),
+                    translatedString
+                )
+            }
+        }
+
+        return originalString
+    }
+
+    override fun stringResourceBlocking(
         context: Context,
         id: Int,
         vararg formatArgs: Any,
@@ -123,25 +198,16 @@ class DynamicTranslator : IDynamicTranslator {
         formatArgs: Array<out Any>,
         translateFunc: (String, Locale) -> T
     ): String {
-        // Create a key for identifying the resource in the desired locale
         val resourceLocaleKey = ResourceLocaleKey(id, Locale.getDefault())
-
-        // Pre-process the input string with formatting arguments
         val preProcessedResult = preProcess(context, id, formatArgs, resourceLocaleKey)
 
-        // If further translation is needed, apply the translation function
         if (preProcessedResult.needsFurtherTranslation) {
             val translatedValue =
                 translateFunc(preProcessedResult.preProcessedString, Locale.getDefault())
-
-            // Post-process the translated result and store it for caching or reuse
-            postProcess(context, translatedValue.toString(), resourceLocaleKey)
-
-            // Return the translated string
+            // postProcess(context, translatedValue.toString(), resourceLocaleKey)
             return translatedValue.toString()
         }
 
-        // If no further translation is needed, return the pre-processed string
         return preProcessedResult.preProcessedString
     }
 
