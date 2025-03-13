@@ -1,5 +1,6 @@
 package org.avmedia.translateapi.engine
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import me.bush.translator.Language
@@ -16,6 +17,7 @@ class BushTranslationEngine : ITranslationEngine {
     ): String {
         val result = runBlocking {
             withTimeoutOrNull(3000L) { // Set timeout duration as needed
+
                 translator.translateBlockingCatching(
                     text,
                     Language(remapObsoleteCodes(target.language)),
