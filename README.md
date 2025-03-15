@@ -36,6 +36,10 @@ The library intercepts calls to `getString()` and `stringResource()`, which read
 It then uses a Google translation service to translate the strings based on the language set in the phone's settings. 
 Translated values are stored in [local storage](https://developer.android.com/training/data-storage) for reuse and better performance.
 
+To avoid blocking the UI thread, translations update the persistent cache in the background, and the UI will update later as the screen us refreshed. If you 
+would like to wait for the translation to complete before updating the UI, you can use `getStringBlocking()` and `stringResourceBlocking()` functions, 
+but beware that your UI may block the for some time the first time the screen is loaded.
+
 ## Prerequisites
 Your app must have Internet access, at least the first time your app runs, to perform the initial translations.
 Ensure you add the following permissions to your manifest:
