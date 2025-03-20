@@ -230,7 +230,6 @@ For the purposes of illustration, here’s a trivial engine that converts all st
 ```kotlin
 class UppercaseTranslationEngine : ITranslationEngine {
    override fun translate(text: String, target: Locale): String = text.uppercase()
-   override suspend fun translateAsync(text: String, target: Locale): String = text.uppercase()
 }
 ```
 To use your custom engine, register it during initialization:
@@ -278,17 +277,8 @@ Adding translation engines, you can perform all sorts of transformations on the 
 offensive words or expressions for certain languages, you can write an engine to do that.
 
 ## Performance
-When loading the app for the first time, if no `strings.xml` file is found for the phone's default language, 
-there may be a delay per screen as the content is being translated. Subsequent access to the same screen, even after 
-restarting the app, will load at normal speed.
-
-We are exploring ways to further improve the initial load performance:
-
-1. Use asynchronous functions like `stringResourceAsync()` to perform translations in the background and update the screen once the translation is complete. 
-However, this approach requires more code changes in the app and is not recommended at this time.
-
-2. Perform a bulk translation as the app loads, and store the translated strings in local storage. Screens can then read from local storage for better performance. Currently
-the translation library does not support bulk translations, but we are looking to add this feature.
+When loading the app for the first time, the library will update the the persistent cache with the translations asynchronously. This way 
+the UI will not be blocked. This may initially show some untranslated strings, but this will be fixed the next time the screen is loaded or refreshed.
 
 ## Who is using it
 The [Casio GShock Smart Sync](https://github.com/izivkov/CasioGShockSmartSync) app is an open-source alternative to the Casio app. It uses this
