@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "org.avmedia.translateapi"
 
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 24
