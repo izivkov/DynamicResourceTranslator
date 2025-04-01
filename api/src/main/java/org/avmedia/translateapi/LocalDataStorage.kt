@@ -9,11 +9,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 object LocalDataStorage {
 
     private const val STORAGE_NAME = "Dynamic Resource Translator"
     private val scope = CoroutineScope(Dispatchers.IO)
+    private val mutex = Mutex()
 
     // Use a DataStore delegate in context
     private val Context.dataStore by preferencesDataStore(
@@ -22,8 +25,10 @@ object LocalDataStorage {
 
     private fun put(context: Context, key: Int, value: String) {
         scope.launch {
-            context.dataStore.edit { preferences ->
-                preferences[stringPreferencesKey(key.toString())] = value
+            mutex.withLock {
+                context.dataStore.edit { preferences ->
+                    preferences[stringPreferencesKey(key.toString())] = value
+                }
             }
         }
     }
@@ -35,8 +40,10 @@ object LocalDataStorage {
     private fun get(context: Context, key: Int, defaultValue: String? = null): String? {
         var value: String?
         runBlocking {
-            val preferences = context.dataStore.data.first()
-            value = preferences[stringPreferencesKey(key.toString())] ?: defaultValue
+            mutex.withLock {
+                val preferences = context.dataStore.data.first()
+                value = preferences[stringPreferencesKey(key.toString())] ?: defaultValue
+            }
         }
         return value
     }
@@ -51,7 +58,9 @@ object LocalDataStorage {
 
     fun delete(context: Context, key: String) {
         scope.launch {
-            deleteAsync(context, key)
+            mutex.withLock {
+                deleteAsync(context, key)
+            }
         }
     }
 
