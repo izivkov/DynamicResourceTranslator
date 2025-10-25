@@ -31,6 +31,10 @@ class MainActivity : ComponentActivity() {
         // .addEngine(UppercaseTranslationEngine())
         .setOverwrites(
             arrayOf(
+                ResourceLocaleKey(R.string.hello, Locale("de")) to { "[Hallo] %1\$s" },
+                ResourceLocaleKey(R.string.hello, Locale("de", "DE")) to { "[Hallo-DE] %1\$s" },
+                ResourceLocaleKey(R.string.hello, Locale("de", "AT")) to { "[Hallo-AT] %1\$s" },
+                ResourceLocaleKey(R.string.hello, Locale("de", "CH")) to { "[Hallo-AT] %1\$s" },
                 ResourceLocaleKey(R.string.hello, Locale("es")) to { "[Hola] %1\$s" },
                 ResourceLocaleKey(R.string.hello, Locale("bg")) to { "Здравей %1\$s" },
 
