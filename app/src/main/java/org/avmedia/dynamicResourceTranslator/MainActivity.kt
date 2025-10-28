@@ -33,6 +33,8 @@ class MainActivity : ComponentActivity() {
             arrayOf(
                 ResourceLocaleKey(R.string.hello, Locale("es")) to { "[Hola] %1\$s" },
                 ResourceLocaleKey(R.string.hello, Locale("bg")) to { "Здравей %1\$s" },
+
+                // Not shown on the screen but for testing
                 ResourceLocaleKey(R.string.apricot, Locale("de", "DE")) to { "Aprikose" },
                 ResourceLocaleKey(R.string.apricot, Locale("de", "AT")) to { "Marille" },
 
