@@ -33,8 +33,8 @@ class MainActivity : ComponentActivity() {
             arrayOf(
                 ResourceLocaleKey(R.string.hello, Locale("es")) to { "[Hola] %1\$s" },
                 ResourceLocaleKey(R.string.hello, Locale("bg")) to { "Здравей %1\$s" },
-                ResourceLocaleKey(R.string.hello, Locale("de", "DE")) to { "Aprikose" },
-                ResourceLocaleKey(R.string.hello, Locale("de", "AT")) to { "Marille" },
+                ResourceLocaleKey(R.string.apricot, Locale("de", "DE")) to { "Aprikose" },
+                ResourceLocaleKey(R.string.apricot, Locale("de", "AT")) to { "Marille" },
 
                 ResourceLocaleKey(R.string.hello, Locale("en")) to {
                     val currentHour = java.time.LocalTime.now().hour

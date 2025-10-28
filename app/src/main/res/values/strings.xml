@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">DynamicResourceTranslator</string>
     <string name="hello">Hello %1$s!</string>
+    <string name="apricot">apricot</string>
     <string name="instructions">Change your phone\'s system language, and restart the app to see this text translated.</string>
     <string name="profound_statement">We all live under the same sky, but we see it differently.</string>
 </resources>
